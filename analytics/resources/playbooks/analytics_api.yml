@@ -1,0 +1,33 @@
+- name: Bootstrap instance(s)
+  hosts: all
+  gather_facts: no
+  become: True
+  roles:
+    - python
+
+- name: Deploy analytics related services (except the pipeline)
+  hosts: all
+  become: True
+  gather_facts: True
+  vars:
+    migrate_db: "yes"
+    disable_edx_services: false
+    ENABLE_DATADOG: False
+    ENABLE_SPLUNKFORWARDER: False
+    ENABLE_NEWRELIC: False
+  roles:
+    - aws
+    - security
+    - mysql
+    - edxlocal
+    - analytics_api
+    - role: nginx
+      nginx_sites:
+        - analytics_api
+    - role: postfix_queue
+      when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST != ''
+  tasks:
+    - name: 'Install libffi-dev'
+      apt: name=libffi-dev state=present
+    - name: 'Install make'
+      apt: name=make state=present

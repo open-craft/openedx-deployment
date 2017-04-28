@@ -1,0 +1,158 @@
+# Common variables - keep synced with vars.yml
+EDXAPP_LMS_BASE_SCHEME: 'x'
+EDXAPP_LMS_BASE: 'x'   # in vars it might be set to {{ LMS_SITE_NAME }} - in such case either copy LMS_SITE_NAME here
+                       # or just copy value. The idea is to have EDXAPP_LMS_BASE set to the same value here and in
+                       # vars.yml
+EDXAPP_CONTACT_EMAIL: 'x'
+# end common variables
+
+# S3 tracking logs
+AWS_S3_LOGS: true
+AWS_S3_LOGS_ACCESS_KEY_ID: 'x'
+AWS_S3_LOGS_SECRET_KEY: 'x'
+AWS_S3_LOGS_NOTIFY_EMAIL: 'ops@example.com'
+AWS_S3_LOGS_FROM_EMAIL: '{{ EDXAPP_DEFAULT_FROM_EMAIL }}'
+
+COMMON_OBJECT_STORE_LOG_SYNC: true
+COMMON_OBJECT_STORE_LOG_SYNC_BUCKET: 'x'
+
+# Analytics
+
+# Shared DB config.
+ANALYTICS_MYSQL_USER: 'analytics'
+ANALYTICS_MYSQL_PASSWORD: 'x'
+ANALYTICS_MYSQL_HOST: 'x2.eu-central-1.rds.amazonaws.com'
+ANALYTICS_MYSQL_PORT: '3306'
+
+# Analytics API
+ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
+ANALYTICS_API_REPORTS_DB_NAME: 'reports'
+ANALYTICS_API_DATABASES:
+  default:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ ANALYTICS_API_DEFAULT_DB_NAME }}'
+    USER: '{{ ANALYTICS_MYSQL_USER }}'
+    PASSWORD: '{{ ANALYTICS_MYSQL_PASSWORD }}'
+    HOST: '{{ ANALYTICS_MYSQL_HOST }}'
+    PORT: '{{ ANALYTICS_MYSQL_PORT }}'
+  reports:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ ANALYTICS_API_REPORTS_DB_NAME }}'
+    USER: '{{ ANALYTICS_MYSQL_USER }}'
+    PASSWORD: '{{ ANALYTICS_MYSQL_PASSWORD }}'
+    HOST: '{{ ANALYTICS_MYSQL_HOST }}'
+    PORT: '{{ ANALYTICS_MYSQL_PORT }}'
+
+ANALYTICS_API_AUTH_TOKEN: 'x'
+
+ANALYTICS_API_USERS:
+  analytics_api_user: '{{ ANALYTICS_API_AUTH_TOKEN }}'
+
+ANALYTICS_API_SECRET_KEY: 'x'
+ANALYTICS_API_EMAIL_HOST: 'localhost'
+ANALYTICS_API_EMAIL_HOST_USER: ''
+ANALYTICS_API_EMAIL_HOST_PASSWORD: ''
+
+ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID: 'x'
+ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY: 'x'
+ANALYTICS_API_ELASTICSEARCH_CONNECTION_CLASS: 'analytics_data_api.v0.connections.BotoHttpConnection'
+ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION: 'us-east-1'
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics-es-x.us-east-1.es.amazonaws.com'
+
+# If you're running the Analytics API on a separate machine from Insights, you'll need to tell Insights where to find
+# the API.
+# ANALYTICS_API_ENDPOINT: 'http://1.2.3.4:18100/api/v0' # or use https
+
+# For organizations with a small number of learners, it's nice to increase the
+# default page size so their learner reports can be downloaded without pagination.
+# ANALYTICS_API_DEFAULT_PAGE_SIZE: 10000
+# ANALYTICS_API_MAX_PAGE_SIZE: 10000
+
+# Insights
+INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
+INSIGHTS_CMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_CMS_BASE }}'
+INSIGHTS_BASE_URL: 'x'
+INSIGHTS_MARKETING_BASE: '{{ INSIGHTS_LMS_BASE }}'
+INSIGHTS_PRIVACY_POLICY_URL: '{{ INSIGHTS_MKTG_BASE }}/privacy'
+INSIGHTS_TERMS_OF_SERVICE_URL: '{{ INSIGHTS_MKTG_BASE }}/tos'
+INSIGHTS_DOC_BASE: 'http://edx-insights.readthedocs.org/'
+INSIGHTS_LMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_LMS_BASE }}/courses'
+INSIGHTS_CMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_CMS_BASE }}/course'
+
+
+# Include something like this to limit or re-order the fields included in the downloadable learner reports
+# INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: username,name,email,cohort,segments,language,year_of_birth,gender,level_of_education,mailing_address,goals,city,country,first_enrollment_date,last_updated
+
+INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: true  # omit or set to false for non-https insights setup
+INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit for non-HTTPs insights setup
+
+# If you're running an HTTPS Insights instance:
+## Paths are relative to the location of the playbook file.
+# NGINX_SSL_CERTIFICATE: '{{ playbook_dir }}/../../duke-extend/edxapp-ssl-cert.pem'
+# NGINX_SSL_KEY: '{{ playbook_dir }}/../../duke-extend/edxapp-ssl-key.key'
+# NGINX_REDIRECT_TO_HTTPS: true
+## Set to "forward_for_proto" if running behind a load balancer.
+# NGINX_HTTPS_REDIRECT_STRATEGY: "scheme"
+
+INSIGHTS_FEEDBACK_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+INSIGHTS_EMAIL_HOST: 'localhost'
+INSIGHTS_EMAIL_HOST_PASSWORD: ''
+INSIGHTS_EMAIL_HOST_USER: ''
+INSIGHTS_ENABLE_AUTO_AUTH: false
+
+INSIGHTS_OAUTH2_KEY: 'x'
+INSIGHTS_OAUTH2_SECRET: 'x'
+INSIGHTS_DATA_API_AUTH_TOKEN: '{{ ANALYTICS_API_AUTH_TOKEN }}'
+
+INSIGHTS_DATABASE_NAME: 'dashboard'
+INSIGHTS_DATABASES:
+  default:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ INSIGHTS_DATABASE_NAME }}'
+    USER: '{{ ANALYTICS_MYSQL_USER }}'
+    PASSWORD: '{{ ANALYTICS_MYSQL_PASSWORD }}'
+    HOST: '{{ ANALYTICS_MYSQL_HOST }}'
+    PORT: '{{ ANALYTICS_MYSQL_PORT }}'
+
+# Jenkins scheduler
+# See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
+
+## Option 1: analytics-jenkins Jenkins setup
+JENKINS_ANALYTICS_AUTH_REALM: none
+JENKINS_ANALYTICS_CREDENTIALS:
+  - id: "{{ ANALYTICS_SCHEDULE_MASTER_SSH_CREDENTIAL_ID }}"
+    scope: GLOBAL
+    username: "{{ ANALYTICS_SCHEDULE_MASTER_SSH_CREDENTIAL_USER }}"
+    type: ssh-private-key
+    passphrase: "{{ ANALYTICS_SCHEDULE_MASTER_SSH_CREDENTIAL_PASSPHRASE }}"
+    description: ssh access key, generated by ansible
+    privatekey: "{{ lookup('file', '/director/path/to/analytics.pem') }}"
+
+# See AWS_analytics_setup.md#jenkins-seed-job
+ANALYTICS_SCHEDULE_SECURE_REPO_URL: "git@github.com:xxx/secure-configuration.git"
+ANALYTICS_SCHEDULE_SECURE_REPO_VERSION: "master"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION: "master"
+ANALYTICS_SCHEDULE_COMMON_VARS: "@{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/analytics-tasks/common-config.yml"
+
+## Option 2: edx-analytics-configuration Jenkins setup
+# jenkins_server_name: 'x'
+# jenkins_user: jenkins
+# jenkins_prefer_ipv4: true
+# jenkins_nginx_port: 8081
+# jenkins_protocol: http
+# jenkins_jvm_args: "-Djava.net.preferIPv4Stack=true"
+#
+# analytics_configuration_repo: 'https://github.com/xxx/edx-analytics-configuration.git'
+# analytics_configuration_version: 'master'
+#
+# analytics_pipeline_repo: 'https://github.com/xxx/edx-analytics-pipeline.git'
+# analytics_pipeline_version: 'master'
+#
+# # EMR vars
+# emr_region: 'us-east-1'
+# emr_vpc_subnet_id: 'x'
+# emr_keypair_name: 'x'
+# emr_cluster_name: 'Analytics Sandbox cluster'
+# emr_s3_config_bucket: 'x'
+# emr_s3_logs_bucket: 'x'
