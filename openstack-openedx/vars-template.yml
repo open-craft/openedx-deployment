@@ -1,0 +1,400 @@
+################################################################################
+### Core settings
+
+# Set this to the domain name of your site
+COMMON_HOSTNAME: 'www.example.com'
+# This should be a slug (no spaces or special characters) representing your organization name
+COMMON_ENVIRONMENT: myorg
+# This should be a slug (no spaces or special characters) identifying this site
+COMMON_DEPLOYMENT: mysite
+
+# The name of your site
+EDXAPP_PLATFORM_NAME: "SET ME to site name"
+EDXAPP_SITE_NAME: '{{ COMMON_HOSTNAME }}'
+EDXAPP_LMS_NGINX_PORT: 80
+EDXAPP_LMS_SSL_NGINX_PORT: 443
+# Set this to 'https' or 'http' depending on which one you're using
+EDXAPP_LMS_BASE_SCHEME: 'https'
+EDXAPP_LMS_SITE_NAME: '{{ EDXAPP_SITE_NAME }}'
+EDXAPP_LMS_BASE: '{{ EDXAPP_SITE_NAME }}'
+
+# Set this to a unique domain name used by staff to preview changes to courseware content.
+# This domain must be different from EDXAPP_LMS_SITE_NAME
+EDXAPP_PREVIEW_LMS_BASE: 'preview.example.com'
+EDXAPP_LMS_PREVIEW_NGINX_PORT: 80
+
+# Set this to the domain name you want to use for Studio:
+EDXAPP_CMS_SITE_NAME: 'studio.example.com'
+EDXAPP_CMS_BASE: '{{ EDXAPP_CMS_SITE_NAME }}'
+CMS_HOSTNAME: '{{ EDXAPP_CMS_SITE_NAME }}'
+EDXAPP_CMS_NGINX_PORT: 80
+EDXAPP_CMS_SSL_NGINX_PORT: 443
+
+# Set this to a string for the part of your domain, such as ".example.com"
+# that is shared by the LMS and Studio, to enable session sharing between
+# LMS and the Studio.
+#EDXAPP_SESSION_COOKIE_DOMAIN: '.example.com'
+
+################################################################################
+### HTTPS, proxy, and redirect settings
+
+# Set to false if deployed behind a proxy or load balancer.
+NGINX_SET_X_FORWARDED_HEADERS: True
+
+# To use an SSL certificate directly on the edxapp VM (instead of on the load balancer):
+#NGINX_ENABLE_SSL: false
+#NGINX_SSL_CERTIFICATE: 'paste certificate here'
+#NGINX_SSL_KEY: 'paste key here'
+
+# Should http:// URLs be redirected to https:// ?
+NGINX_REDIRECT_TO_HTTPS: false
+
+# Nginx redirects (optional)
+# This example redirects non-www to www version of example.com.
+# nginx_redirects:
+#   no_www_to_www:
+#     server_names: ['example.com']
+#     redirect_destination: 'https://www.example.com'
+#     ssl: true
+
+
+# What version of Open edX to install
+edx_ansible_source_repo: 'https://github.com/edx/configuration.git'
+edx_platform_repo: 'https://github.com/edx/edx-platform.git'
+edx_platform_version: 'open-release/ficus.master'
+configuration_version: 'open-release/ficus.master'
+forum_version: 'open-release/ficus.master'
+xqueue_version: 'open-release/ficus.master'
+certs_version: 'open-release/ficus.master'
+NOTIFIER_VERSION: 'open-release/ficus.master'
+ANALYTICS_API_VERSION: 'open-release/ficus.master'
+INSIGHTS_VERSION: 'open-release/ficus.master'
+ECOMMERCE_VERSION: 'open-release/ficus.master'
+
+
+################################################################################
+### Secret keys:
+
+ANALYTICS_API_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+CREDENTIALS_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+DISCOVERY_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+ECOMMERCE_CYBERSOURCE_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+ECOMMERCE_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+ECOMMERCE_SOCIAL_AUTH_EDX_OIDC_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+ECOMMERCE_SOCIAL_AUTH_EDX_OIDC_SECRET: 'IMPORTANT! SET ME to a secure, unique, random value'
+ECOMMERCE_WORKER_JWT_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDXAPP_ANALYTICS_API_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDXAPP_EDXAPP_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDXAPP_EDX_API_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDXAPP_JWT_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDXAPP_PROFILE_IMAGE_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+EDX_NOTES_API_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+FORUM_API_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+INSIGHTS_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+NOTIFIER_LMS_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+PROGRAMS_SECRET_KEY: 'IMPORTANT! SET ME to a secure, unique, random value'
+
+ECOMMERCE_EDX_API_KEY: '{{ EDXAPP_EDX_API_KEY }}'
+EDXAPP_COMMENTS_SERVICE_KEY: '{{ FORUM_API_KEY }}'
+NOTIFIER_COMMENT_SERVICE_API_KEY: '{{ FORUM_API_KEY }}'
+NOTIFIER_USER_SERVICE_API_KEY: '{{ EDXAPP_EDX_API_KEY }}'
+
+################################################################################
+### MySQL
+
+MY_MYSQL_HOSTNAME: 'SET ME to hostname of your MySQL server'
+MY_MYSQL_PORT: 3306
+
+# edxapp
+EDXAPP_MYSQL_DB_NAME: 'SET ME to the name of the edxapp database'
+EDXAPP_MYSQL_USER: 'SET ME to the username of the edxapp database'
+EDXAPP_MYSQL_PASSWORD: 'SET ME to the password of the edxapp database'
+EDXAPP_MYSQL_HOST: '{{ MY_MYSQL_HOSTNAME }}'
+EDXAPP_MYSQL_PORT: '{{ MY_MYSQL_PORT }}'
+
+# xqueue
+XQUEUE_MYSQL_DB_NAME: 'SET ME to the name of the xqueue database'
+XQUEUE_MYSQL_USER: 'SET ME to the username of the xqueue database'
+XQUEUE_MYSQL_PASSWORD: 'SET ME to the password of the xqueue database'
+XQUEUE_MYSQL_HOST: '{{ MY_MYSQL_HOSTNAME }}'
+XQUEUE_MYSQL_PORT: '{{ MY_MYSQL_PORT }}'
+
+# edxapp_csmh
+EDXAPP_MYSQL_CSMH_DB_NAME: 'SET ME to the name of the edxapp_csmh database'
+EDXAPP_MYSQL_CSMH_USER: 'SET ME to the username of the edxapp_csmh database'
+EDXAPP_MYSQL_CSMH_PASSWORD: 'SET ME to the password of the edxapp_csmh database'
+EDXAPP_MYSQL_CSMH_HOST: '{{ MY_MYSQL_HOSTNAME }}'
+EDXAPP_MYSQL_CSMH_PORT: '{{ MY_MYSQL_PORT }}'
+
+# edx_notes_api
+EDX_NOTES_API_MYSQL_DB_NAME: 'SET ME to the name of the edx_notes_api database'
+EDX_NOTES_API_MYSQL_DB_USER: 'SET ME to the username of the edx_notes_api database'
+EDX_NOTES_API_MYSQL_DB_PASS: 'SET ME to the password of the edx_notes_api database'
+EDX_NOTES_API_MYSQL_HOST: '{{ MY_MYSQL_HOSTNAME }}'
+EDX_NOTES_API_MYSQL_PORT: '{{ MY_MYSQL_PORT }}'
+
+# notifier
+NOTIFIER_DATABASE_ENGINE: 'django.db.backends.mysql'
+NOTIFIER_DATABASE_NAME: 'SET ME to the name of the notifier database'
+NOTIFIER_DATABASE_USER: 'SET ME to the username of the notifier database'
+NOTIFIER_DATABASE_PASSWORD: 'SET ME to the password of the notifier database'
+NOTIFIER_DATABASE_HOST: '{{ MY_MYSQL_HOSTNAME }}'
+NOTIFIER_DATABASE_PORT: '{{ MY_MYSQL_PORT }}'
+
+# Common users
+COMMON_MYSQL_MIGRATE_USER: 'SET ME to the name of a MySQL user with permission to alter schemas'
+COMMON_MYSQL_MIGRATE_PASS: 'SET ME'
+COMMON_MYSQL_READ_ONLY_USER: 'SET ME to the name of a MySQL user with read-only access'
+COMMON_MYSQL_READ_ONLY_PASS: 'SET ME'
+#COMMON_MYSQL_ADMIN_USER: 'SET ME to the name of a MySQL user with permission to create users'
+#COMMON_MYSQL_ADMIN_PASS: 'SET ME'
+
+################################################################################
+### MongoDB
+
+EDXAPP_MONGO_USER: 'SET ME to username for courseware MongoDB'
+EDXAPP_MONGO_PASSWORD: 'SET ME to password for courseware MongoDB'
+EDXAPP_MONGO_HOSTS: ['SET ME to hostname of your MongoDB server']
+EDXAPP_MONGO_PORT: 27017
+EDXAPP_MONGO_DB_NAME: 'SET ME to name of the courseware MongoDB DB'
+
+FORUM_MONGO_USER: 'SET ME to username for forum MongoDB'
+FORUM_MONGO_PASSWORD: 'SET ME to password for forum MongoDB'
+FORUM_MONGO_HOSTS: ['SET ME to hostname of your MongoDB server']
+FORUM_MONGO_PORT: 27017
+FORUM_MONGO_DATABASE: 'SET ME to name of the forum MongoDB DB'
+
+################################################################################
+### SWIFT File Storage
+
+MY_SWIFT_CONTAINER_NAME: 'SET ME to swift container name'
+MY_SWIFT_USERNAME: 'SET ME to swift username'
+MY_SWIFT_PASSWORD: 'SET ME to swift password'
+MY_SWIFT_TENANT: 'SET ME to swift/openstack tenant ID'
+MY_SWIFT_AUTH_URL: 'SET ME to swift/openstack authentication URL'
+MY_SWIFT_REGION: 'SET ME to swift/openstack region ID'
+
+################################################################################
+### RabbitMQ
+
+XQUEUE_RABBITMQ_USER: 'SET ME'
+XQUEUE_RABBITMQ_PASS: 'SET ME'
+XQUEUE_RABBITMQ_HOSTNAME: 'SET ME'
+XQUEUE_RABBITMQ_VHOST: '/xqueue'
+XQUEUE_RABBITMQ_PORT: 5672
+XQUEUE_RABBITMQ_TLS: true
+
+EDXAPP_CELERY_USER: 'SET ME'
+EDXAPP_CELERY_PASSWORD: 'SET ME'
+EDXAPP_CELERY_BROKER_VHOST: '/celery'
+EDXAPP_RABBIT_HOSTNAME: 'set_hostname:5672'
+EDXAPP_CELERY_BROKER_USE_SSL: true
+
+################################################################################
+### ElasticSearch
+
+MY_ELASTICSEACH_HOST: "SET ME to the hostname of ElasticSearch 0.90"
+MY_ELASTICSEACH_PORT: 9200
+
+EDXAPP_ELASTIC_SEARCH_CONFIG:
+- host: "{{ MY_ELASTICSEACH_HOST }}"
+  port: "{{ MY_ELASTICSEACH_PORT }}"
+FORUM_ELASTICSEARCH_HOST: "{{ MY_ELASTICSEACH_HOST }}"
+FORUM_ELASTICSEARCH_PORT: "{{ MY_ELASTICSEACH_PORT }}"
+
+################################################################################
+### Language & Region
+EDXAPP_LANG: 'en_US.UTF-8'
+EDXAPP_TIME_ZONE: 'UTC'
+
+EDXAPP_ENV_EXTRA:
+  LANGUAGE_CODE: 'en'
+
+################################################################################
+### Optional Features
+
+# See http://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/feature_flags/feature_flag_index.html
+
+EDXAPP_FEATURES:
+  ALLOW_ALL_ADVANCED_COMPONENTS: true
+  AUTH_USE_OPENID: false
+  CERTIFICATES_ENABLED: true
+  CERTIFICATES_HTML_VIEW: true
+  ENABLE_COMBINED_LOGIN_REGISTRATION: true
+  ENABLE_DISCUSSION_SERVICE: true
+  ENABLE_DISCUSSION_HOME_PANEL: true
+  ENABLE_DISCUSSION_EMAIL_DIGEST: true
+  ENABLE_DJANGO_ADMIN_SITE: true
+  ENABLE_INSTRUCTOR_ANALYTICS: true
+  ENABLE_INSTRUCTOR_EMAIL: true
+  ENABLE_OAUTH2_PROVIDER: true
+  ENABLE_PEARSON_HACK_TEST: false
+  ENABLE_GRADE_DOWNLOADS: true
+  ENABLE_THIRD_PARTY_AUTH: true
+  ENABLE_XBLOCK_VIEW_ENDPOINT: true
+  PREVIEW_LMS_BASE: '{{ EDXAPP_PREVIEW_LMS_BASE }}'
+  REQUIRE_COURSE_EMAIL_AUTH: false
+  USE_MICROSITES: false
+  PREVENT_CONCURRENT_LOGINS: false
+  # These are not part of the standard install:
+  # CUSTOM_COURSES_EDX: true
+  # ENABLE_LTI_PROVIDER: true
+  # ENABLE_PREREQUISITE_COURSES: true
+  # ENABLE_PROCTORED_EXAMS: true
+  # INDIVIDUAL_DUE_DATES: true
+  # MILESTONES_APP: true
+
+################################################################################
+### New Relic Monitoring (Optional)
+
+#COMMON_ENABLE_NEWRELIC: true
+#COMMON_ENABLE_NEWRELIC_APP: true
+#NEWRELIC_LICENSE_KEY: 'SET ME to your New Relic license key'
+
+################################################################################
+### Email settings:
+
+# Set this to an email address where users can reach you:
+EDXAPP_CONTACT_EMAIL: '{{ contact@example.com }}'
+EDXAPP_TECH_SUPPORT_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_BUGS_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_FEEDBACK_SUBMISSION_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_DEFAULT_FROM_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_DEFAULT_FEEDBACK_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_SERVER_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+ECOMMERCE_OSCAR_FROM_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
+NOTIFIER_DIGEST_EMAIL_SENDER: '{{ EDXAPP_CONTACT_EMAIL }}'
+
+# Relay email through external SMTP provider.
+POSTFIX_QUEUE_EXTERNAL_SMTP_HOST: 'SET ME to hostname of your SMTP server'
+POSTFIX_QUEUE_EXTERNAL_SMTP_PORT: 587
+POSTFIX_QUEUE_EXTERNAL_SMTP_USER: 'SET ME to the username of your SMTP server'
+POSTFIX_QUEUE_EXTERNAL_SMTP_PASSWORD: 'SET ME to the password of your SMTP server'
+
+# Do not change the following settings - these values will make edX send using the postfix queue configured above:
+EDXAPP_EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
+EDXAPP_EMAIL_HOST: 'localhost'
+EDXAPP_EMAIL_PORT: 25
+EDXAPP_EMAIL_HOST_USER: ''
+EDXAPP_EMAIL_HOST_PASSWORD: ''
+EDXAPP_EMAIL_USE_TLS: false
+NOTIFIER_EMAIL_BACKEND: 'smtp'
+NOTIFIER_EMAIL_HOST: 'localhost'
+NOTIFIER_EMAIL_PORT: 25
+NOTIFIER_EMAIL_USER: ''
+NOTIFIER_EMAIL_PASS: ''
+NOTIFIER_EMAIL_USE_TLS: false
+
+################################################################################
+### Theming
+
+# These two variables should generally not be changed:
+EDXAPP_ENABLE_COMPREHENSIVE_THEMING: true
+EDXAPP_COMPREHENSIVE_THEME_DIRS:
+  - '/edx/app/edxapp/themes'
+
+# Set the following variables if you want to use a theme for this instance:
+# EDXAPP_DEFAULT_SITE_THEME: 'my-theme-name'
+# edxapp_theme_name: '{{ EDXAPP_DEFAULT_SITE_THEME }}'
+# edxapp_theme_source_repo: 'https://github.com/open-craft/my-comprehensive-theme.git'
+# edxapp_theme_version: 'master'
+
+################################################################################
+### Custom python requirements (e.g. XBlocks)
+
+# Use this variable to install additional XBlocks or other python packages:
+# EDXAPP_EXTRA_REQUIREMENTS:
+#   - name: git+https://github.com/open-craft/xblock-leaderboard.git@61f831ba9b1ff899b40df3ea13111f6ffdd44859#egg=xblock-leaderboard
+
+
+################################################################################
+### HTTP authentication (Optional)
+
+#COMMON_ENABLE_BASIC_AUTH: true
+#COMMON_HTPASSWD_USER: 'username'
+#COMMON_HTPASSWD_PASS: 'password'
+
+
+################################################################################
+### Other settings
+
+# Allow non-https OAuth API use?
+EDXAPP_OAUTH_ENFORCE_SECURE: false
+
+# Set a YouTube API key here.
+# If you are not using a YouTube API key, set this to !!null
+# or you may see YouTube XHR errors.
+EDXAPP_YOUTUBE_API_KEY: !!null
+
+# Set analytics url to an empty string to hide links to Insights on instructor dashboard.
+# For installations that include analytics, this should be set to the base Insights URL.
+EDXAPP_ANALYTICS_DASHBOARD_URL: ''
+
+# Notifier (forum digest notifications)
+NOTIFIER_DIGEST_TASK_INTERVAL: '1440'  # 1440 minutes == 24 hours
+NOTIFIER_LMS_URL_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
+NOTIFIER_LOGO_IMAGE_URL: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}/static/images/logo.png'
+
+################################################################################
+### Miscellaneous (Don't change these unless you know what you're doing)
+
+COMMON_ENABLE_OPENSTACK_INTEGRATION: true
+COMMON_EDXAPP_SETTINGS: 'openstack'
+EDXAPP_SETTINGS: 'openstack'
+XQUEUE_SETTINGS: 'openstack_settings'
+
+VHOST_NAME: 'openstack'
+# COMMON_VHOST_ROLE_NAME is deprecated; keeping it around for compatibility
+COMMON_VHOST_ROLE_NAME: '{{ VHOST_NAME }}'
+
+# Don't create default users on production instances
+DEMO_CREATE_STAFF_USER: false
+demo_test_users: []
+
+# Workers
+EDXAPP_WORKER_DEFAULT_STOPWAITSECS: 1200
+
+# Forum environment settings
+FORUM_RACK_ENV: 'production'
+FORUM_SINATRA_ENV: 'production'
+
+# Security updates
+COMMON_SECURITY_UPDATES: true
+SECURITY_UNATTENDED_UPGRADES: true
+SECURITY_UPDATE_ALL_PACKAGES: false
+SECURITY_UPGRADE_ON_ANSIBLE: true
+
+# Swift file storage
+
+EDXAPP_DEFAULT_FILE_STORAGE: 'swift.storage.SwiftStorage'
+EDXAPP_FILE_UPLOAD_STORAGE_BUCKET_NAME: '{{ MY_SWIFT_CONTAINER_NAME }}'
+EDXAPP_SWIFT_AUTH_VERSION: '2'
+EDXAPP_SWIFT_USERNAME: '{{ MY_SWIFT_USERNAME }}'
+EDXAPP_SWIFT_KEY: '{{ MY_SWIFT_PASSWORD }}'
+EDXAPP_SWIFT_TENANT_NAME: '{{ MY_SWIFT_TENANT }}'
+EDXAPP_SWIFT_AUTH_URL: '{{ MY_SWIFT_AUTH_URL }}'
+EDXAPP_SWIFT_REGION_NAME: '{{ MY_SWIFT_REGION }}'
+
+EDXAPP_GRADE_STORAGE_CLASS: 'swift.storage.SwiftStorage'
+EDXAPP_GRADE_STORAGE_KWARGS:
+  name_prefix: 'grades-download/'
+
+XQUEUE_SWIFT_USERNAME: '{{ MY_SWIFT_USERNAME }}'
+XQUEUE_SWIFT_KEY: '{{ MY_SWIFT_PASSWORD }}'
+XQUEUE_SWIFT_TENANT_NAME: '{{ MY_SWIFT_TENANT }}'
+XQUEUE_SWIFT_AUTH_URL: '{{ MY_SWIFT_AUTH_URL }}'
+XQUEUE_SWIFT_AUTH_VERSION: '{{ EDXAPP_SWIFT_AUTH_VERSION }}'
+XQUEUE_SWIFT_REGION_NAME: '{{ MY_SWIFT_REGION }}'
+XQUEUE_UPLOAD_BUCKET: '{{ MY_SWIFT_CONTAINER_NAME }}'
+XQUEUE_UPLOAD_PATH_PREFIX: 'xqueue'
+
+# Tracking logs
+COMMON_OBJECT_STORE_LOG_SYNC: true
+COMMON_OBJECT_STORE_LOG_SYNC_BUCKET: '{{ MY_SWIFT_CONTAINER_NAME }}'
+COMMON_OBJECT_STORE_LOG_SYNC_PREFIX: 'logs/tracking/'
+SWIFT_LOG_SYNC_USERNAME: '{{ MY_SWIFT_USERNAME }}'
+SWIFT_LOG_SYNC_PASSWORD: '{{ MY_SWIFT_PASSWORD }}'
+SWIFT_LOG_SYNC_TENANT_NAME: '{{ MY_SWIFT_TENANT }}'
+SWIFT_LOG_SYNC_AUTH_URL: '{{ MY_SWIFT_AUTH_URL }}'
+SWIFT_LOG_SYNC_REGION_NAME: '{{ MY_SWIFT_REGION }}'
