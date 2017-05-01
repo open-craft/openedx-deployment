@@ -1,7 +1,7 @@
 Setting up Jenkins
 ==================
 
-See [Jenkins Setup](aws_setup.md) to set up a Jenkins instance.
+See [Jenkins Setup](jenkins.md) to set up a Jenkins instance.
 
 EdX analytics pipeline comes equipped with a lot of tasks to perform various analytics calculations, but it
 intentionally lacks any mechanism to run them periodically. EdX suggests using cron jobs or Jenkins builds. This
@@ -80,7 +80,7 @@ It makes sense to try to produce even load on the server by running tasks throug
 # Commands
 
 These example commands rely heavily on environment variables defined in [`jenkins_env`](resources/jenkins_env).  See
-[Jenkins Env and Configuration Overrides](AWS_deployment_tutorial.md#jenkins-env-and-configuration-overrides) for a
+[Jenkins Env and Configuration Overrides](jenkins.md#jenkins-env-and-configuration-overrides) for a
 discussion of these environment variables.
 
 One can do without a `jenkins_env` file by omitting the `. /home/jenkins/jenkins_env` command from the shell script

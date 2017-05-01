@@ -10,3 +10,7 @@ Session.vim
 *~
 # auto-generated tag files
 tags
+# ignore docs build dir
+build
+# Mac cruft
+.DS_Store

@@ -1,0 +1,3 @@
+site_name: Open edX Deployment
+site_dir: build
+theme: readthedocs

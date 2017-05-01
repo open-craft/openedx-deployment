@@ -1,9 +1,9 @@
 Insights/Analytics API Setup
 ============================
 
-See [AWS Setup](aws_setup.md) to set up AWS resources and prepare secure configuration.
+See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
-Shell into the [director instance](aws_setup.md#director-ec2), launch the virtualenv, and go to the playbooks dir:
+Shell into the [director instance](AWS_setup.md#director-ec2), launch the virtualenv, and go to the playbooks dir:
 
 ```bash
 workon edx-configuration
@@ -21,12 +21,12 @@ If you are splitting these services across multiple EC2 instances, then you'll n
 [`analytics_insights.yml`](resources/playbooks/analytics_insights.yml) and
 [`analytics_api.yml`](resources/playbooks/analytics_api.yml).
 
-Ensure that your playbook(s) are located on your [director instance](aws_setup.md#director-ec2) under `configuration/playbooks`.
+Ensure that your playbook(s) are located on your [director instance](../shared/director.md) under `configuration/playbooks`.
 
 Variables and SSH Keys
 ----------------------
 
-Clone your secure repo (see [Sensitive Data](aws_setup.md#sensitive-data)) into the home directory.
+Clone your secure repo (see [Sensitive Data](AWS_setup.md#sensitive-data)) into the home directory.
 
 Update [`analytics-vars.yml`](resources/analytics-vars.yml) to override default variables used in [`edx/configuration`
 roles](https://github.com/edx/configuration/playbooks/roles).
@@ -99,7 +99,6 @@ fix this, make sure java-7 is installed, update alternatives to use java 7, manu
 than restart ansible script:
 
 ```bash
-
 ubuntu@director> ssh -i analytics.pem ubuntu@analytics_ip
 ubuntu@analytics> sudo apt-get install openjdk-7-jdk -y
 ubuntu@analytics> sudo apt-get update-alternatives --config java  # interactive session - choose entry with
@@ -200,16 +199,14 @@ The Insights application has a number of [waffle feature flags and
 switches](https://waffle.readthedocs.io/en/v0.9/types.html) which are disabled by default.  These can be used to disable
 new features, so that they can be enabled when and if the data becomes ready.
 
-Feature "flags" can be enabled for specific groups of users:
+Feature "flags" can be enabled for specific groups of users using these arguments:
 
-Argument           | Description
----------------------------------------------------------------------------------------------------------------
-`--everyone`       | Activate flag for all users.
-`--deactivate`     | Deactivate flag for all users.
-`--percent=PERCENT`| Roll out the flag for a certain percentage of users.  Takes a number between 0.0 and 100.0
-`--superusers`     | Turn on the flag for Django superusers.
-`--staff`          | Turn on the flag for Django staff.
-`--authenticated`  | Turn on the flag for logged in users.
+* `--everyone`: Activate flag for all users.
+* `--deactivate`: Deactivate flag for all users.
+* `--percent=PERCENT`: Roll out the flag for a certain percentage of users.  Takes a number between 0.0 and 100.0
+* `--superusers`: Turn on the flag for Django superusers.
+* `--staff`: Turn on the flag for Django staff.
+* `--authenticated`: Turn on the flag for logged in users.
 
 Run the following command on your Insights instance from within the Insights env:
 

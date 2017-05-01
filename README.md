@@ -1,6 +1,13 @@
 Open edX Deployment
 ===================
 
-Documentation and resources for deploying Open edX services.
+Documentation and resources for deploying Open edX services.  See [docs](docs/).
 
-* [Set up Analytics on AWS](analytics/aws_setup.md)
+To build the docs to HTML:
+
+```bash
+pip install mkdocs
+mkdocs build
+```
+
+Ref [mkdocs](http://www.mkdocs.org/)
