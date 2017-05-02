@@ -38,16 +38,20 @@ EDXAPP_CMS_SSL_NGINX_PORT: 443
 ################################################################################
 ### HTTPS, proxy, and redirect settings
 
-# Set to false if deployed behind a proxy or load balancer.
-NGINX_SET_X_FORWARDED_HEADERS: True
+# Set to false if deployed behind a proxy or load balancer, or true otherwise:
+NGINX_SET_X_FORWARDED_HEADERS: false  # SET ME - important! See above.
 
 # To use an SSL certificate directly on the edxapp VM (instead of on the load balancer):
 #NGINX_ENABLE_SSL: false
-#NGINX_SSL_CERTIFICATE: 'paste certificate here'
-#NGINX_SSL_KEY: 'paste key here'
+#NGINX_SSL_CERTIFICATE: 'SET ME (optional)'
+#NGINX_SSL_KEY: 'SET ME (optional)'
 
 # Should http:// URLs be redirected to https:// ?
-NGINX_REDIRECT_TO_HTTPS: false
+NGINX_REDIRECT_TO_HTTPS: true
+# Should we trust the forwarded-for headers when deciding to redirect?
+# Set this to "scheme" if no (not behind a load balancer), or "forward_for_proto"
+# if yes (behind a load balancer).
+NGINX_HTTPS_REDIRECT_STRATEGY: "forward_for_proto"
 
 # Nginx redirects (optional)
 # This example redirects non-www to www version of example.com.
@@ -61,15 +65,16 @@ NGINX_REDIRECT_TO_HTTPS: false
 # What version of Open edX to install
 edx_ansible_source_repo: 'https://github.com/edx/configuration.git'
 edx_platform_repo: 'https://github.com/edx/edx-platform.git'
-edx_platform_version: 'open-release/ficus.master'
-configuration_version: 'open-release/ficus.master'
-forum_version: 'open-release/ficus.master'
-xqueue_version: 'open-release/ficus.master'
-certs_version: 'open-release/ficus.master'
-NOTIFIER_VERSION: 'open-release/ficus.master'
-ANALYTICS_API_VERSION: 'open-release/ficus.master'
-INSIGHTS_VERSION: 'open-release/ficus.master'
-ECOMMERCE_VERSION: 'open-release/ficus.master'
+OPENEDX_RELEASE: 'open-release/ficus.master'
+edx_platform_version: '{{ OPENEDX_RELEASE }}'
+configuration_version: '{{ OPENEDX_RELEASE }}'
+forum_version: '{{ OPENEDX_RELEASE }}'
+xqueue_version: '{{ OPENEDX_RELEASE }}'
+certs_version: '{{ OPENEDX_RELEASE }}'
+NOTIFIER_VERSION: '{{ OPENEDX_RELEASE }}'
+ANALYTICS_API_VERSION: '{{ OPENEDX_RELEASE }}'
+INSIGHTS_VERSION: '{{ OPENEDX_RELEASE }}'
+ECOMMERCE_VERSION: '{{ OPENEDX_RELEASE }}'
 
 
 ################################################################################
@@ -225,7 +230,6 @@ EDXAPP_FEATURES:
   ENABLE_DISCUSSION_HOME_PANEL: true
   ENABLE_DISCUSSION_EMAIL_DIGEST: true
   ENABLE_DJANGO_ADMIN_SITE: true
-  ENABLE_INSTRUCTOR_ANALYTICS: true
   ENABLE_INSTRUCTOR_EMAIL: true
   ENABLE_OAUTH2_PROVIDER: true
   ENABLE_PEARSON_HACK_TEST: false
