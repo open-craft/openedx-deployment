@@ -23,7 +23,7 @@ the file `playbook/analytics-jenkins.yml`.  If not, consider merging the changes
 Variables and SSH Keys
 ----------------------
 
-Update your [`analytics-vars.yml`](resources/analytics-vars.yml) to use the Jenkins scheduler configuration, and remove
+Update your [`analytics-vars.yml`](resources/vars-analytics.yml) to use the Jenkins scheduler configuration, and remove
 the `edx-analytics-configuration` section.  See the [Jenkins Analytics
 README](https://github.com/edx/configuration/blob/master/playbooks/roles/jenkins_analytics/README.md) for more
 information about the variables in that file.
