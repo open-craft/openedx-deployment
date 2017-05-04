@@ -1,7 +1,9 @@
 Open edX Deployment
 ===================
 
-Documentation and resources for deploying Open edX services.  See [docs](docs/).
+Documentation and resources for deploying Open edX services.
+
+See [opencraft.com/doc/openedx-deployment/](http://opencraft.com/doc/openedx-deployment/) for the latest release.
 
 To build the docs to HTML:
 
