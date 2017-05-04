@@ -28,7 +28,7 @@ Variables and SSH Keys
 
 Clone your secure repo (see [Sensitive Data](AWS_setup.md#sensitive-data)) into the home directory.
 
-Update [`analytics-vars.yml`](resources/analytics-vars.yml) to override default variables used in [`edx/configuration`
+Update [`vars-analytics.yml`](resources/vars-analytics.yml) to override default variables used in [`edx/configuration`
 roles](https://github.com/edx/configuration/playbooks/roles).
 
 If you are splitting these services across multiple EC2 instances, then you'll need to also override
@@ -69,7 +69,7 @@ Example run:
 
 ```bash
 ansible-playbook -i "1.2.3.4," \
-                 -e @/home/ubuntu/secure-config/edxapp-vars.yml -e @/home/ubuntu/secure-config/analytics-vars.yml \
+                 -e @/home/ubuntu/secure-config/edxapp-vars.yml -e @/home/ubuntu/secure-config/vars-analytics.yml \
                  -u ubuntu \
                  --private-key=/home/ubuntu/secure-config/analytics.pem \
                  analytics_sandbox.yml
@@ -124,7 +124,7 @@ Insights OAuth2
 
 Create the OAuth2 client for accessing Insights in the LMS by SSHing to your `edxapp` instance.  You can do this before
 your Insights EC2 instance is provisioned.  Just make sure the `INSIGHTS_OAUTH2_KEY` and `INSIGHTS_OAUTH2_SECRET` values
-match those specified in your [`analytics-vars.yml`](resources/analytics-vars.yml).
+match those specified in your [`vars-analytics.yml`](resources/vars-analytics.yml).
 
 ```bash
 sudo -Hu edxapp bash
@@ -147,12 +147,12 @@ Troubleshooting
 ---------------
 
 Insights settings are located in `/edx/etc/insights.yml` on the Insights EC2 instance. It should contain variables from
-your `analytics-vars.yml`.
+your `vars-analytics.yml`.
 
 * No response from Insights at all:
     * Check that you're using correct port
     * Check that port is open in `analytics` Security Group (and Insights EC2 instance has that Security Group assigned)
-    * Check HTTP/HTTPS (if using HTTPS, don't forget to set `INSIGHTS_NGINX_SSL_PORT` in `analytics-vars.yml`)
+    * Check HTTP/HTTPS (if using HTTPS, don't forget to set `INSIGHTS_NGINX_SSL_PORT` in `vars-analytics.yml`)
     * Check that Elastic IP is assigned to the correct instance (especially when adding `anayltics-2`, `analytics-3`, etc.)
 * Can't log in to Insights - most of such errors are due to broken OAuth2 configuration.
     * Clicking "Login" in Insights takes to 404 page in LMS.

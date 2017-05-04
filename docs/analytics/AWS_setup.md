@@ -30,7 +30,7 @@ We will add our sensitive data, such as database passwords and key files, to a s
 deployment.  The files and their expected contents are discussed in subsequent sections.
 
 * `analytics.pem` - AWS certificate for the analytics instance
-* [`analytics-vars.yml`](resources/vars-analytics.yml) - ansible variables used to set up the analytics cluster.
+* [`vars-analytics.yml`](resources/vars-analytics.yml) - ansible variables used to set up the analytics cluster.
   These variables can be stored in a separate file, or appended to the base `vars.yml` file used for the full edxapp
   setup.
 * `analytics-tasks/`: Analytics-related configuration files
@@ -126,7 +126,7 @@ The analytics API needs to be able to read indexes from the AWS ElasticSearch in
 * Give it a recognizable name (eg. `analytics_elasticsearch`)
 * Give it Programmatic access
 * Attach the policy you created above (eg. `elasticsearch_all`)
-* Copy the security credentials to the [`analytics-vars.yml`](resources/analytics-vars.yml) fields:
+* Copy the security credentials to the [`vars-analytics.yml`](resources/vars-analytics.yml) fields:
     * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
     * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
@@ -240,7 +240,8 @@ API's Learner API to display in Insights.
 
 In around 10 minutes, the new ElasticSearch domain will be created.  Paste the `Endpoint` (e.g.
 `https://search-client-name-analytics-es-xxxxx.eu-west-1.es.amazonaws.com`) into two places:
-* `analytics-vars.yml`: [`ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST`](resources/vars-analytics.yml#L60)
+
+* `vars-analytics.yml`: [`ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST`](resources/vars-analytics.yml#L60)
 * `analytics-override.yml`: [`[elasticsearch] host`](resources/analytics-override.cfg#L48)
 
 
@@ -273,7 +274,7 @@ Most other configuration steps you can leave at their default values, unless spe
 
 Note that Insights runs on 18110 port by default, and we're not opening it, so it should be configured to listen on
 default HTTP and/or HTTPS ports with `INSIGHTS_NGINX_PORT` variables `INSIGHTS_NGINX_SSL_PORT` in
-[`analytics-vars.yml`](resources/analytics-vars.yml).
+[`vars-analytics.yml`](resources/vars-analytics.yml).
 
 After the instance is fully initialized, SSH into it using the key file you used when creating this instance:
 
@@ -335,7 +336,7 @@ GRANT ALL PRIVILEGES ON `analytics-api`.* TO 'analytics'@'%';
 FLUSH PRIVILEGES;
 ```
 
-Store the database credentials in [`analytics-vars.yml`](resources/analytics-vars.yml):
+Store the database credentials in [`vars-analytics.yml`](resources/vars-analytics.yml):
 
 * `ANALYTICS_MYSQL_HOST`: 'analytics-rds-name.other-stuff.rds.amazonaws.com'
 * `ANALYTICS_MYSQL_USER`: 'analytics'
