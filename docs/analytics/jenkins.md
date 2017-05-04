@@ -1,13 +1,13 @@
 Jenkins Setup
 =============
 
-See [AWS Setup](aws_setup.md) to set up AWS resources and prepare secure configuration.
+See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
 There are two ways to set up the Jenkins scheduler.  The patched `edx-analytics-configuration` playbook is being phased
 out in favor of the `edx/configuration/playbook/analytics-jenkins.yml`, but many of our existing instances use the old
 method, so be careful when updating an existing instance.
 
-If you're updating an existing Jenkins instance, check your `analytics-vars.yml` file.  If it contains
+If you're updating an existing Jenkins instance, check your `vars-analytics.yml` file.  If it contains
 `JENKINS_ANALYTICS_*` variables, then use [Option 1: `ansible-jenkins.yml`](#option-1-ansible-jenkins).  Otherwise, use
 the patched `edx-analytics-configuration`.
 
@@ -16,14 +16,14 @@ If you're setting up a new Jenkins instance, use [Option 1:
 
 ### Option 1. ansible-jenkins
 
-Use the `edx/configuration` repository on the [director instance](aws_setup.md#director-ec2).  Ensure that it contains
+Use the `edx/configuration` repository on the [director instance](../shared/director.md).  Ensure that it contains
 the file `playbook/analytics-jenkins.yml`.  If not, consider merging the changes from `edx:master`, or using the
 `edx-analytics-configuration` option below.
 
 Variables and SSH Keys
 ----------------------
 
-Update your [`analytics-vars.yml`](resources/vars-analytics.yml) to use the Jenkins scheduler configuration, and remove
+Update your [`vars-analytics.yml`](resources/vars-analytics.yml) to use the Jenkins scheduler configuration, and remove
 the `edx-analytics-configuration` section.  See the [Jenkins Analytics
 README](https://github.com/edx/configuration/blob/master/playbooks/roles/jenkins_analytics/README.md) for more
 information about the variables in that file.
@@ -36,7 +36,7 @@ Run the playbook, e.g.:
 workon edx-configuration
 cd configuration/playbooks
 ansible-playbook -i '1.2.3.4,' \
-                 -e @/home/ubuntu/secure-config/analytics-vars.yml \
+                 -e @/home/ubuntu/secure-config/vars-analytics.yml \
                  -u ubuntu
                  --private-key=/home/ubuntu/secure-config/analytics.pem \
                  --skip-tags="jenkins-seed-job" \
@@ -60,18 +60,19 @@ To avoid seeing ansible errors about the seed job when running this playbook, we
 
 #### Troubleshooting
 
-* Jenkins is bound on IPv6: Make sure the [`analytics-vars.yml`](resources/analytics-vars.yml) file defines
+* Jenkins is bound on IPv6: Make sure the [`vars-analytics.yml`](resources/vars-analytics.yml) file defines
   `jenkins_jvm_args` to contain `"-Djava.net.preferIPv4Stack=true"`.
 
 ### Option 2. edx-analytics-configuration
 
 Checkout `open-craft/edx-analytics-configuration/analytics-sandbox` on the director instance, install requirements in
 dedicated virtual environment, and run the `jenkins/scheduler.yml` playbook, passing vars from the `vars.yml` file.
-Make sure to apply [`analytics-configuration` patches][opencraft-analytics-config-patches]
-(commit range [46ea75c][analytics-commit-range-start]..[9d6ea8f][analytics-commit-range-end])
+Make sure to apply [`analytics-configuration` patches](https://github.com/open-craft/edx-analytics-configuration/commits/analytics-sandbox)
+(commit range 
+[46ea75c](https://github.com/open-craft/edx-analytics-configuration/commit/46ea75c0b6affeb57d40535e84fe53103b686a1f)..[9d6ea8f](https://github.com/open-craft/edx-analytics-configuration/commit/9d6ea8fbba820840c879cdf2f370d7fb06338096))
 for the playbook to run correctly.
 
-Update your `analytics-vars.yml` to use the edx-analytics-configuration Jenkins scheduler section, not the
+Update your `vars-analytics.yml` to use the edx-analytics-configuration Jenkins scheduler section, not the
 edx/configration Jenkins scheduler section.
 
 Commands should look roughly like this:
@@ -84,20 +85,14 @@ Commands should look roughly like this:
                      --private-key=/path/to/edxapp.pem \
                      jenkins/scheduler.yml
 
-[analytics-commit-range-start]:
-https://github.com/open-craft/edx-analytics-configuration/commit/46ea75c0b6affeb57d40535e84fe53103b686a1f
-[analytics-commit-range-end]:
-https://github.com/open-craft/edx-analytics-configuration/commit/9d6ea8fbba820840c879cdf2f370d7fb06338096
-[opencraft-analytics-config-patches]:
-https://github.com/open-craft/edx-analytics-configuration/commits/analytics-sandbox
-
 #### Troubleshooting
 
 * `locale.Error: unsupported locale setting` - by default Analytics/Insights instance have broken locale - [this
  AskUbuntu answer](http://askubuntu.com/a/229512) was helpful.
 * Jenkins is bound on IPv6: by default Jenkins binds to `localhost`, which on some systems is translated to `::1` (IPv6
-  notation). However, nginx proxy_pass [might not work with that][nginx-proxy-pass-ipv6].  Make sure [this
-  commit][prefer-ipv4-switch] is applied/cherry-picked and set `jenkins_prefer_ipv4` to true in `analytics-vars.yml`
+  notation). However, nginx proxy_pass [might not work with that](http://mgalgs.github.io/2013/05/04/localhost-considered-harmful.html).  
+  Make sure [this commit](https://github.com/edx/edx-analytics-configuration/pull/32/commits/c97686586506677a5184181aa1ba0f7e610fceb8)
+  is applied/cherry-picked and set `jenkins_prefer_ipv4` to true in `vars-analytics.yml`
 * `jenkins_port`, `jenkins_external_port` and `INSIGHTS_NGINX_PORT` - first controls which port Jenkins app listens to.
   Second controls which port nginx reverse proxy uses to forward requests to  Jenkins app. Third is used by nginx
   reverse proxy to forward requests to Insights app. The three might conflict, preventing either Jenkins or Insights to
@@ -105,12 +100,6 @@ https://github.com/open-craft/edx-analytics-configuration/commits/analytics-sand
   In this tutorial, we're confine Jenkins to AWS VPC only, by not exposing it to the world, while also allowind Insights
   to listen to 80 and 443 ports (default HTTP and HTTPS, in case you don't know :)). In this scenario, values should be
   `8080`, `8081` and `80`.
-
-[nginx-proxy-pass-ipv6]:
-http://mgalgs.github.io/2013/05/04/localhost-considered-harmful.html
-
-[prefer-ipv4-switch]:
-https://github.com/edx/edx-analytics-configuration/pull/32/commits/c97686586506677a5184181aa1ba0f7e610fceb8
 
 SSH Tunneling to Jenkins
 ------------------------
@@ -268,7 +257,7 @@ Make sure to check what approach is used in current setup branches and alter `je
 
 The `emr-vars.yml` file is passed to the ansible playbook that handles EMR provisioning.  See
 [emr-vars.yml](resources/emr-vars.yml) for an example.  You'll need to update the S3 bucket names as per the [S3
-buckets](aws_setup.md#s3) you created.
+buckets](AWS_setup.md#s3) you created.
 
 Jenkins analytics jobs
 ----------------------
