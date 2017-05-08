@@ -50,6 +50,7 @@ To create job, authenticate to Jenkins, than go to main page.
 * `Build Triggers` - `Build Periodically`. `H X * * *` should be good value for `Schedule field`, with X being an hour
   to run task (i.e. with X=19 task will run an 19:00 daily), `H` being Jenkins feature to spread the load; refer to
   Jenkins help should more need for a more sophisticated schedule arise.
+* `Build Environment` -> `Abort the build if it's stuck`: Enable this option. Set `Time-out strategy` to `Elastic`, `Timeout as a percentage of recent non-failing builds` to `300%`, `Number of Builds` to `3`, and `Timeout Minutes` to `300`. Then click `Add Action` and add a timeout action of `Fail the Build`.
 * `Build Environment` -> `SSH Agent` -> `Credentials` -> `Specific credentials` : This allows Jenkins to ssh to the
   EMR servers via the shell command.  Select the 'hadoop' ssh access key created by ansible.
   If the ssh credentials were not configured via ansible, you can manually create a key here by clicking the
