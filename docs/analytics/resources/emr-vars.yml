@@ -5,7 +5,7 @@ region: 'us-east-1'
 instance_groups:
   master:
     num_instances: 1
-    type: m4.medium
+    type: m4.large
     market: ON_DEMAND
   core:
     num_instances: 1
@@ -18,7 +18,7 @@ instance_groups:
 role: EMR_EC2_DefaultRole
 keypair_name: 'analytics'  # your analytics instance key pair name
 vpc_subnet_id: 'subnet-abcd1234'  # public subnet of the VPC
-log_uri: 's3://client-name-analytics-emr'
+log_uri: 's3://client-name-analytics-emr/logs'
 release_label: 'emr-4.7.2'
 
 applications:

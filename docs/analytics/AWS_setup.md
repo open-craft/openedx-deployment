@@ -200,6 +200,50 @@ permissions on the bucket must be set as follows:
 }
 ```
 
+### Analytics API Reports
+
+Do this step only if your client requires the Problem Response Reports.
+
+The pipeline task `ProblemResponseReportWorkflow` generates reports and stores them to S3.  The analytics API sends
+links to these report files to Insights.  So we need to create an IAM user with read access to the analytics-api report
+bucket.
+
+* Go to `IAM -> Users -> Create New User`
+* Give it a recognizable name (eg. `analytics_reports`)
+* Create security credentials, and copy them to `vars-analytics.yml` fields under
+  `ANALYTICS_API_REPORT_DOWNLOAD_BACKEND`:
+
+  * `AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
+  * `AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g. `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
+  * `AWS_STORAGE_BUCKET_NAME`: the S3 bucket created for the analytics-api reports goes here, e.g.
+    `client-name-analytics-api-reports`
+* Under Permissions, create an `Inline Policy -> Custom Policy`
+* Give it a recognizable name (eg. `s3-read-analytics-reports`)
+* Paste this into "Policy Body", with the correct bucket name replaced where
+  `client-name-analytics-api-reports` is used below.
+
+  *Note*: the Resource `"arn:aws:s3:::client-name-analytics-api-reports"` refers to the top-level bucket access, and
+   `"arn:aws:s3:::client-name-analytics-api-reports/*"` refers to all the files stored inside the bucket.  Both resource statements are required.
+
+ ```json
+    {
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "s3:Get*",
+                    "s3:List*"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::client-name-analytics-api-reports",
+                    "arn:aws:s3:::client-name-analytics-api-reports/*"
+                ]
+            }
+        ]
+    }
+   ```
+   - Click "Create"
+
 * Select `Save`
 
 ### VPC DNS hostname
@@ -211,7 +255,10 @@ provisioning will be stuck at `provisioning`.  To check whether DNS hostnames ar
 * Check the value of "DNS hostnames" in the Summary tab/pane. If it says `no`, click `Actions -> Edit DNS Hostnames`,
   select `Yes`, and save.
 
-This VPC ID belongs in the `vpc_subnet_id` variable in [`emr-vars.yml`](resources/emr-vars.yml).
+### VPC Subnet
+
+* Go to the AWS VPC dashboard, and select Subnets
+* Ensure that one of the subnet IDs listed in the Subnets list is in the `vpc_subnet_id` variable in [`emr-vars.yml`](resources/emr-vars.yml).
 
 ElasticSearch
 -------------
@@ -345,14 +392,14 @@ and in [`edxanalytics_creds`](resources/creds_example).
 
 Ansible tasks use common credentials for DB migration, which, by default are set to match edxapp credentials.
 The easiest way to do this is to create a user in the analytics database with the same credentials as the edxapp mysql
-user.  Use this commands to create the user in analytics db (replace `<edxapp_user>` and `<edxapp_password>` with your
+user.  Use this commands to create the user in analytics db (replace `edxapp` and `<edxapp_password>` with your
 actual DB user credentials):
 
 ```sql
-CREATE USER '<edxapp_user>'@'%' IDENTIFIED BY '<edxapp_password>';
-GRANT ALL PRIVILEGES ON `reports`.* TO '<edxapp_user>'@'%';
-GRANT ALL PRIVILEGES ON `dashboard`.* TO '<edxapp_user>'@'%';
-GRANT ALL PRIVILEGES ON `analytics-api`.* TO '<edxapp_user>'@'%';
+CREATE USER 'edxapp'@'%' IDENTIFIED BY '<edxapp_password>';
+GRANT ALL PRIVILEGES ON `reports`.* TO 'edxapp'@'%';
+GRANT ALL PRIVILEGES ON `dashboard`.* TO 'edxapp'@'%';
+GRANT ALL PRIVILEGES ON `analytics-api`.* TO 'edxapp'@'%';
 FLUSH PRIVILEGES;
 ```
 
@@ -379,16 +426,20 @@ Elastic IP
 Create new Elastic IP and associate it with Insights EC2 instance (see [Elastic IP](../shared/Elastic_IP.md)).
 
 S3
----
+--
 
 Create the required S3 buckets:
 
 * `client-name-tracking-logs`: for storing tracking logs emitted by LMS and sharing them with analytics pipeline.
   (May already be created, see [prerequisites](#prerequisites) above.)
 * `client-name-analytics-emr` - for initial EMR cluster provisioning and logs. Some setups may use a separate
-  bucket for EMR logs, e.g. `client-name-analytics-emr-logs`.
+  bucket for EMR logs, e.g. `client-name-analytics-emr-logs`.  See [Configuration S3
+  bucket](jenkins.md#configuration-s3-bucket) for the list of files that need to be uploaded to this bucket.
 * `client-name-edxanalytics` - for analytics pipeline configuration (access credentials, GeoIP data, etc.) and data
-  (hadoop, hive).  Some setups may use a separate bucket for Hive/hadoop, e.g.  `client-name-edxanalytics-hadoop`.
+  (hadoop, hive).  Some setups may use a separate bucket for Hive/hadoop, e.g.  `client-name-edxanalytics-hadoop`.  See
+  [Pipeline S3 bucket](jenkins.md#pipeline-s3-bucket) for the list of files that need to be uploaded to this bucket.
+* `client-name-analytics-api-reports` - used to share reports generated by the analytics pipeline with the analytics API.  Only required for some analytics pipeline tasks (e.g. `ProblemResponseReportWorkflow`).
+
 
 Insights/Analytics API Setup
 ============================

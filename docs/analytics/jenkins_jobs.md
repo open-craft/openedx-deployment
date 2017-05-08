@@ -237,6 +237,8 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTa
 
 Run on a daily build schedule, e.g. `H 19 * * *`.
 
+Run this task only if your client requires daily Student Engagement reports.
+
 ```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="StudentEngagementCsvFileTaskDaily Cluster"
@@ -256,6 +258,8 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
 
 Run on a weekly build schedule, e.g. `H 21 * * 1`.
 
+Run this task only if your client requires weekly Student Engagement reports.
+
 ```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="StudentEngagementCsvFileTaskWeekly Cluster"
@@ -271,3 +275,45 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
   --interval-type weekly \
   --interval "$FROM_DATE-$TO_DATE"
 ```
+
+## Problem Response Reports
+
+Generates learners' problem responses reports; runs daily.
+
+Run this task only if your client requires the Problem Response Reports.  Requires the [Analytics API Reports S3
+bucket](AWS_setup.md#analytics-api-reports), and the [Insights `enable_problem_response_download` waffle flag
+enabled](insights.md#configure-insights).
+
+If Course Block data is available, then it is merged into the generated reports.
+
+Run on periodic build schedule, e.g. ` H 20 * * * `.
+
+Note: HKS epodX wanted theirs to run hourly, so for them we use: ` H * * * * `.
+And we add this to [analytics-override.cfg](resources/analytics-override.cfg), to allow hourly partitions:
+
+    [problem-response]
+    partition_format = %Y-%m-%dT%H
+
+Note that it's just the Problem Response data that is re-generated hourly; the Course Blocks and Course List data is
+still configured to use the default daily partition.
+
+We use "midnight tomorrow" as the interval end, so that records gathered today will be included immediately in the
+generated reports.
+
+Shell build step:
+
+```
+. /home/jenkins/jenkins_env
+export CLUSTER_NAME="ProblemResponseReportWorkflow Cluster"
+cd $HOME
+
+TOMORROW=`date --date="tomorrow" +%Y-%m-%d`
+
+analytics-configuration/automation/run-automated-task.sh ProblemResponseReportWorkflow \
+    --local-scheduler \
+    --marker $HADOOP_S3_BUCKET/intermediate/problem_response/marker`date +%s` \
+    --interval-end "$TOMORROW" \
+    --hive-overwrite \
+    --n-reduce-tasks $NUM_REDUCE_TASKS
+```
+

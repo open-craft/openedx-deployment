@@ -15,7 +15,7 @@ On the following pages, make the settings given below.  Everything that's not li
 Setting name                   | Value                                      | Comments
 -------------------------------|--------------------------------------------|--------------
 DB engine version              | 5.6.x (pick the latest version)            |
-DB Instance Class              | `db.m3.medium`, or `db.t2.medium`          |
+DB Instance Class              | `db.t2.medium` or `db.m3.medium`           |
 Multi-AZ Deployment            | No                                         | Choose "Yes" only if you know you need these.
 Provisioned IOPS Storage       | No                                         | Choose "Yes" only if you know you need these.
 Storage Type                   | General Purpose (SSD)                      |

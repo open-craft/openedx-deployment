@@ -45,8 +45,7 @@ Clone [`edx/configuration`](https://github.com/edx/configuration) repo, and inst
 ```bash
 git clone https://github.com/edx/configuration.git
 cd configuration
-pip install -r pre-requirements.txt
-pip install -r requirements.txt
+make requirements
 ```
 
 This will install `ansible` among other depencencies.
