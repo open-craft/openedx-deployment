@@ -1,6 +1,6 @@
 # OpenStack Production Deployment (Proposal)
 
-edX does not officially provide any supported method for deploying a production-grade instance of Open edX. However, the following *proposed* method for setting up a production-grade instance on OpenStack is available to the community, and support for this method will be provided by OpenCraft, if there is sufficient community interest in this approach. For context, this method of deployment is used in production for over 100 production instances of Open edX on [OpenCraft's hosting platform](http://opencraft.com/hosting/).
+edX does not officially provide any supported method for deploying a production-grade instance of Open edX. However, the following *proposed* method for setting up a production-grade instance on OpenStack is available to the community, and recommended by OpenCraft. For context, this method of deployment is used in production for over 100 production instances of Open edX on [OpenCraft's hosting platform](http://opencraft.com/hosting/).
  
 
 ## Features of this Deployment Method
@@ -49,9 +49,9 @@ Additional notes:
 1. Set up RabbitMQ: Create a username+password for "celery" and another username+password for "xqueue".
 1. Set up ElasticSearch as listed in the requirements section above.
 1. Create a private git repository (we recommend using GitHub or GitLab) with a name like "sitename-vars" where sitename is the name of your new Open edX site
-1. In that new repository, create a vars.yml file using [this template](https://github.com/open-craft/opencraft/pull/204) (or [this alternate template](https://github.com/open-craft/openedx-deployment/blob/supported-deployment-template/openstack-openedx/vars-template.yml)) as a template
+1. In that new repository, create a vars.yml file using [this template](https://github.com/open-craft/opencraft/pull/204) as a template
 1. Go through `vars.yml` and customize each variable to match your planned deployment. The comments included in the file offer an explanation of what each setting does.
-1. Set up a "director" VM following [these instructions](http://opencraft.com/doc/openedx-deployment/shared/director/).
+1. Set up a "director" VM following [these instructions](../shared/director/).
 1. Run ansible to provision the instance using [the edx-stateless.yml playbook](https://github.com/edx/configuration/blob/master/playbooks/edx-stateless.yml):
    ```
    ansible-playbook -i 1.2.3.4 -e@../path/to/sitename-vars.yml -u ubuntu edx-stateless.yml
