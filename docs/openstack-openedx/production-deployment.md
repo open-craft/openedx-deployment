@@ -7,6 +7,7 @@ edX does not officially provide any supported method for deploying a production-
 With this method, you'll get an instance of Open edX that's ready to handle production traffic and which follows well-established best practices for deployments.
  
 Details:
+
 * Uses the latest stable Open edX release (Ficus)
 * Can be scaled to a multi-VM setup to handle higher traffic levels
 * Uses ansible for automated, repeatable provisioning of VMs
@@ -16,14 +17,15 @@ Details:
 * Does not currently support ecommerce, course discovery, or Insights
  
 Requirements
+
 * In order to use this deployment method, you will need:
-* An OpenStack cloud provider (Juno release or newer) including Compute (Nova) and Block * Storage (Swift). A provider that supports Neutron networking and offers load balancing as a * service (LBaaS) is highly recommended.
+* An OpenStack cloud provider (Juno release or newer) including Compute (Nova) and Block Storage (Swift). A provider that supports Neutron networking and offers load balancing as a service (LBaaS) is highly recommended.
   - Public cloud providers are listed in the [OpenStack Marketplace](https://www.openstack.org/marketplace/public-clouds/).
   - At a minimum, you will need a VM with 4 GB of RAM
 * A MySQL server/cluster running MySQL version 5.6 or newer
 * A MongoDB server/cluster running MongoDB version 2.6, 3.0, or 3.2
 * A VM running RabbitMQ
-* A VM running ElasticSearch version 0.90.13 (not any newer version) - may be installed on the * same VM as RabbitMQ
+* A VM running ElasticSearch version 0.90.13 (not any newer version) - may be installed on the same VM as RabbitMQ
 * An SSL certificate for each of the domains (typically there are three: www.example.com, studio.example.com, preview.example.com). We recommend using Let's Encrypt for free SSL certificates.
  
 As these are standard open source services, **the installation, configuration, and operation of these database servers is left to your operations team**, and would not be supported by OpenCraft nor edX. However, ansible playbooks which may be used to set up most of these services are provided at https://github.com/edx/configuration/tree/master/playbooks (edX) and https://github.com/open-craft/deployment-deploy-databases (OpenCraft).
@@ -88,11 +90,13 @@ Additional notes:
 
 ## How to get support (Proposal)
 Please post on [the openedx-ops mailing list](https://www.google.com/url?q=https://groups.google.com/forum/%23!forum/openedx-ops&sa=D&ust=1493711786670000&usg=AFQjCNGzXWqTVJOdP4hySmnSd_wDdC2q9w) and include "(OpenCraft OpenStack deployment)" at the end of your subject line. It will increase the chances to get help with any of the following issues, provided that they correspond to the exact setup described above:
+
 * Problems encountered provisioning an instance using the edx-stateless playbook
 * Problems encountered when updating/upgrading an instance
 * Advice on configuring/sizing a deployment
  
 Note that the subject tag mentioned above should not be used for problems related to:
+
 * Creating an OpenStack account or provisioning virtual machines
 * Setting up databases or other services listed in the "requirements" section
 * Using Open edX once it has been set up
