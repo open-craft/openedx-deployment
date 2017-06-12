@@ -86,8 +86,8 @@ Additional notes:
 1. Update the DNS or OpenStack LBaaS to point to the new VM instead of the old one.
  
 
-## How to get support (Proposal - this is not yet actively supported)
-Please post on [the openedx-ops mailing list](https://www.google.com/url?q=https://groups.google.com/forum/%23!forum/openedx-ops&sa=D&ust=1493711786670000&usg=AFQjCNGzXWqTVJOdP4hySmnSd_wDdC2q9w) and include "(OpenCraft OpenStack deployment support)" at the end of your subject line. It will increase the chances to get help with any of the following issues, provided that they correspond to the exact setup described above:
+## How to get support (Proposal)
+Please post on [the openedx-ops mailing list](https://www.google.com/url?q=https://groups.google.com/forum/%23!forum/openedx-ops&sa=D&ust=1493711786670000&usg=AFQjCNGzXWqTVJOdP4hySmnSd_wDdC2q9w) and include "(OpenCraft OpenStack deployment)" at the end of your subject line. It will increase the chances to get help with any of the following issues, provided that they correspond to the exact setup described above:
 * Problems encountered provisioning an instance using the edx-stateless playbook
 * Problems encountered when updating/upgrading an instance
 * Advice on configuring/sizing a deployment
