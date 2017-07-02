@@ -29,7 +29,7 @@ hourly):
 * Increase this to the desired number of processes, e.g. 3.
 
 Also note that if you're going to have Jenkins tasks running in parallel, they should be [configured to use different
-`CLUSTER_NAME` values](jenkins.md#CLUSTER_NAME) so they don't terminate EMR clusters out from under one another.  See
+`CLUSTER_NAME` values](jenkins.md#cluster_name) so they don't terminate EMR clusters out from under one another.  See
 the sample task configurations for examples of `CLUSTER_NAME` values.
 
 Configuring Jenkins job
@@ -37,42 +37,34 @@ Configuring Jenkins job
 
 To create job, authenticate to Jenkins, than go to main page.
 
-* Click "New Item" in the left sidebar.
-  Once you've created the first task, you can "Copy from existing item" instead, which saves a lot of steps.
-* Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task
-  (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help
-  recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
+* Click "New Item" in the left sidebar. Once you've created the first task, you can "Copy from existing item" instead, which saves a lot of steps.
+* Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
 * Select "Build a free-style software project"
-* You'll arrive at job configuration page. `Name` should be already set automatically. You might want to give task a
-  description.
+* You'll arrive at job configuration page. `Name` should be already set automatically. You might want to give task a description.
 * No modifications required in `Job Notifications` and `Advanced Project Options` sections.
 * `Source Code Management` - `None`
-* `Build Triggers` - `Build Periodically`. `H X * * *` should be good value for `Schedule field`, with X being an hour
-  to run task (i.e. with X=19 task will run an 19:00 daily), `H` being Jenkins feature to spread the load; refer to
-  Jenkins help should more need for a more sophisticated schedule arise.
+* `Build Triggers` - `Build Periodically`. `H X * * *` should be good value for `Schedule field`, with X being an hour to run task (i.e. with X=19 task will run an 19:00 daily), `H` being Jenkins feature to spread the load; refer to Jenkins help should more need for a more sophisticated schedule arise.
 * `Build Environment` -> `Abort the build if it's stuck`: Enable this option. Set `Time-out strategy` to `Absolute`, `Timeout Minutes` to `300`. Then click `Add Action` and add a timeout action of `Fail the Build`.
-* `Build Environment` -> `SSH Agent` -> `Credentials` -> `Specific credentials` : This allows Jenkins to ssh to the
-  EMR servers via the shell command.  Select the 'hadoop' ssh access key created by ansible.
-  If the ssh credentials were not configured via ansible, you can manually create a key here by clicking the
+* `Build Environment` -> `SSH Agent` -> `Credentials` -> `Specific credentials`: This allows Jenkins to ssh to the
+  EMR servers via the shell command. Select the 'hadoop' ssh access key created by ansible. If the ssh credentials were not configured via ansible you can manually create a key here by clicking the
   `Add Key` button.
-    * Kind: SSH username with private key
-    * Scope: Global
-    * Username: `hadoop`
-    * Private key: paste the analytics private key file contents directly, or copy the file to the analytics instance
-      and point to the path.
-    * Passphrase: Leave empty for AWS-issued private key files.
-    * Description: ssh credential file
+  * Kind: SSH username with private key
+  * Scope: Global
+  * Username: `hadoop`
+  * Private key: paste the analytics private key file contents directly, or copy the file to the analytics instance and point to the path.
+  * Passphrase: Leave empty for AWS-issued private key files.
+  * Description: ssh credential file
 * `Build` -> `Add Step` -> `Execute Shell`.
 * Fill in `Command` field with shell script to run. See [Commands](#commands) for details.
 * `Post build actions` -> `Add post build task` ->
-    * `Log text`: `Traceback`
-    * `Script`: `exit 1`
-    * `Run script only if all previous steps were successful`: `yes`
-    * `Escalate script execution status to job status`: `yes`
+  * `Log text`: `Traceback`
+  * `Script`: `exit 1`
+  * `Run script only if all previous steps were successful`: `yes`
+  * `Escalate script execution status to job status`: `yes`
 * `Post build actions` -> `Add post build action` -> `Email Notification`
-    * `Recipients` - an alert email address, e.g. `ops@example.com`
-    * `Send e-mail for every unstable build`: `yes`
-    * `Send separate e-mails to individuals who broke the build`: `no`
+  * `Recipients` - an alert email address, e.g. `ops@example.com`
+  * `Send e-mail for every unstable build`: `yes`
+  * `Send separate e-mails to individuals who broke the build`: `no`
 * Finally, click `Save`
 
 It makes sense to try to produce even load on the server by running tasks throughout the day, i.e. not put them all to
@@ -91,13 +83,13 @@ body, and list the environment variables in the actual shell command inline.
 
 Performance (Graded and Ungraded); runs nightly.
 
-Run on periodic build schedule, e.g. ` H 0 * * * `.
+Run on periodic build schedule, e.g. `H 0 * * *`.
 
 NB: The AnswerDistributionWorkflow task is one of the oldest analytics tasks, and not as cleanly configured as the other
 tasks.  The `--dest`, `--manifest`, and `--marker` parameters must used a timestamped directory, to ensure fresh data
 for each run of the task.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="AnswerDistributionWorkflow Cluster"
 cd $HOME
@@ -123,9 +115,9 @@ analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkf
 
 Imports enrollments data; runs daily.
 
-Run on periodic build schedule, e.g. ` H 6 * * * `.
+Run on periodic build schedule, e.g. `H 6 * * *`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="ImportEnrollmentsIntoMysql Cluster"
 cd $HOME
@@ -141,9 +133,9 @@ analytics-configuration/automation/run-automated-task.sh ImportEnrollmentsIntoMy
 
 Enrollments by geolocation; runs daily.
 
-Run on periodic build schedule, e.g. ` H 12 * * * `.
+Run on periodic build schedule, e.g. `H 12 * * *`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="InsertToMysqlCourseEnrollByCountryWorkflow Cluster"
 cd $HOME
@@ -159,9 +151,9 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseEnro
 
 Weekly course activity; runs daily.
 
-Run on periodic build schedule, e.g. ` H 3 * * * `.
+Run on periodic build schedule, e.g. `H 3 * * *`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="CourseActivityWeeklyTask Cluster"
 cd $HOME
@@ -186,7 +178,7 @@ point), however, it needs to be bootstrapped when you first start running the sy
 Do not run on a periodic build schedule; run manually once when deploying analytics for a client with historical
 tracking data.  Beware that this task can take several hours to complete, so choose a conservative `FROM_DATE`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="ModuleEngagementInterval Cluster"
 cd $HOME
@@ -205,11 +197,11 @@ analytics-configuration/automation/run-automated-task.sh ModuleEngagementInterva
 
 Weekly course module engagement data stored in an ElasticSearch index; runs daily.
 
-Run on periodic build schedule, e.g. ` H 15 * * * `.
+Run on periodic build schedule, e.g. `H 15 * * *`.
 
 Note: HKS epodX wanted theirs to run every 2 hours, so for them we use: `H */2 * * *`,
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="ModuleEngagementWorkflowTask Cluster"
 cd $HOME
@@ -225,9 +217,9 @@ analytics-configuration/automation/run-automated-task.sh ModuleEngagementWorkflo
 
 Tracks video interactions; runs daily.
 
-Run on periodic build schedule, e.g. ` H 9 * * * `.
+Run on periodic build schedule, e.g. `H 9 * * *`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="InsertToMysqlAllVideoTask Cluster"
 cd $HOME
@@ -243,9 +235,9 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTa
 
 ### Daily Reports
 
-Run on a daily build schedule, e.g. ` H 19 * * * `.
+Run on a daily build schedule, e.g. `H 19 * * *`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="StudentEngagementCsvFileTaskDaily Cluster"
 cd $HOME
@@ -259,11 +251,12 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
   --marker "$HADOOP_S3_BUCKET/intermediate/student_engagement/$NOW/marker" \
   --interval "$FROM_DATE-$TO_DATE"
 ```
+
 ### Weekly Reports
 
-Run on a weekly build schedule, e.g. ` H 21 * * 1 `.
+Run on a weekly build schedule, e.g. `H 21 * * 1`.
 
-```
+```bash
 . /home/jenkins/jenkins_env
 export CLUSTER_NAME="StudentEngagementCsvFileTaskWeekly Cluster"
 cd $HOME

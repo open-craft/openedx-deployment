@@ -59,9 +59,8 @@ Run the playbook using the following arguments:
 * `-u ubuntu`: User on the analytics EC2 instance with sudo access.
 * `-e @/path/to/vars.yml`: Extra variables used to override the defaults.
   Note that analytics ansible script uses some `edxapp`-related variables. There are two ways to supply them:
-    * Use two `*-vars.yml` files, and supply them both to ansible (as in example below).  Variables defined in
-      subsequent `-e` arguments take precedence.
-    * Merge the two into single `vars.yml` file.
+  * Use two `*-vars.yml` files, and supply them both to ansible (as in example below).  Variables defined in subsequent `-e` arguments take precedence.
+  * Merge the two into single `vars.yml` file.
 * `--private-key=/path/to/analytics.pem`: The SSH key file used to access your `analytics` instance(s).
 * `--vvvv`: Optional verbosity setting.  The more `v`s you give, the more ansible will log.
 
@@ -75,20 +74,19 @@ ansible-playbook -i "1.2.3.4," \
                  analytics_sandbox.yml
 ```
 
-
 Wait for it to complete.
 
 Troubleshooting
 ---------------
 
-```
+```bash
 Compressing...
 2016-04-20 10:13:59,565 p=20676 u=ubuntu |  FATAL: all hosts have already failed -- aborting
 ```
 
 This "error" message is a bit misleading, but about 50-60 lines above it is the actual error message:
 
-```
+```bash
 stderr: CommandError: An error occured during rendering /anything/anything/anything_template.html:
 Exception in thread "main" java.lang.UnsupportedClassVersionError: com/google/javascript/jscomp/CommandLineRunner
 : Unsupported major.minor version 51.0
@@ -150,43 +148,42 @@ Insights settings are located in `/edx/etc/insights.yml` on the Insights EC2 ins
 your `vars-analytics.yml`.
 
 * No response from Insights at all:
-    * Check that you're using correct port
-    * Check that port is open in `analytics` Security Group (and Insights EC2 instance has that Security Group assigned)
-    * Check HTTP/HTTPS (if using HTTPS, don't forget to set `INSIGHTS_NGINX_SSL_PORT` in `vars-analytics.yml`)
-    * Check that Elastic IP is assigned to the correct instance (especially when adding `anayltics-2`, `analytics-3`, etc.)
+  * Check that you're using correct port
+  * Check that port is open in `analytics` Security Group (and Insights EC2 instance has that Security Group assigned)
+  * Check HTTP/HTTPS (if using HTTPS, don't forget to set `INSIGHTS_NGINX_SSL_PORT` in `vars-analytics.yml`)
+  * Check that Elastic IP is assigned to the correct instance (especially when adding `anayltics-2`, `analytics-3`, etc.)
 * Can't log in to Insights - most of such errors are due to broken OAuth2 configuration.
-    * Clicking "Login" in Insights takes to 404 page in LMS.
+  * Clicking "Login" in Insights takes to 404 page in LMS.
        Most likely LMS OAuth2 provider is disabled. Check that `FEATURES[ENABLE_OAUTH2_PROVIDER]` is set to `true` in
        `/edx/app/edxapp/*.env.vars`.
-    * Successfully authenticates to LMS, but some error happens later.
-        * In LMS: `invalid_request The requested redirect didn't match the client settings.` - make sure OAuth2 Client
-          is configured with correct Insights endpoint:
-              * Go to LMS_URL/admin/oauth2/clients, select the Insights client, and make sure `Redirect` field contains
+  * Successfully authenticates to LMS, but some error happens later.
+    * In LMS: `invalid_request The requested redirect didn't match the client settings.` - make sure OAuth2 Client is configured with correct Insights endpoint:
+    * Go to LMS_URL/admin/oauth2/clients, select the Insights client, and make sure `Redirect` field contains
                 [the correct URL](#insights-oauth2), using `http` or `https` as appropriate for your setup.
-              * Check `SOCIAL_AUTH_REDIRECT_IS_HTTPS` is set to `true` for HTTPS Insights and to `false` for HTTP
+    * Check `SOCIAL_AUTH_REDIRECT_IS_HTTPS` is set to `true` for HTTPS Insights and to `false` for HTTP
                 Insights.
                 It is taken from `INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS` ansible var.
-              * Check `EDXAPP_LMS_BASE_SCHEME` - sets LMS scheme (HTTP/HTTPS). This setting is also used for OAuth2
+    * Check `EDXAPP_LMS_BASE_SCHEME` - sets LMS scheme (HTTP/HTTPS). This setting is also used for OAuth2
                 authentication, as part of `issuer` string, used by OAuth2 clients (i.e. Insights). LMS OAuth2 provider
                 uses actual host, so if redirect to HTTPS is enabled, actual OAuth2 responses will have `issuer` set to
                 https://LMS_URL, even if this setting is set to http, causing OAuth2 clients to cancel authentication.
                 Recommended value: `https` if LMS uses HTTPS, `http` otherwise.
-        * In LMS: `unauthorized_client An unauthorized client tried to access your resources.` - Insights setting
+    * In LMS: `unauthorized_client An unauthorized client tried to access your resources.` - Insights setting
           `SOCIAL_AUTH_EDX_OIDC_KEY` was not found among LMS' OAuth2 Clients' `Client ID`. Check that LMS `Client ID`
           matches `INSIGHTS_OAUTH2_KEY` variable value.
-        * In LMS `... request cancelled...` - this happens when LMS can't confirm authenticity of the request, which
+    * In LMS `... request cancelled...` - this happens when LMS can't confirm authenticity of the request, which
           means that `INSIGHTS_OAUTH2_SECRET` Insights setting does not match with `Client Secret` value in LMS OAuth2
           client.
-        * In Insights: 500 response and `AuthCanceled: Authentication process cancelled` in
+    * In Insights: 500 response and `AuthCanceled: Authentication process cancelled` in
           `/edx/var/log/insights/edx.log` - means that Insights was not able to decrypt LMS response - it
           happens in two cases:
-              * Insights setting `SOCIAL_AUTH_EDX_OIDC_SECRET` does not match `Client secret` in LMS
-              * Insights setting `SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY` does not match
+      * Insights setting `SOCIAL_AUTH_EDX_OIDC_SECRET` does not match `Client secret` in LMS
+      * Insights setting `SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY` does not match
                 `SOCIAL_AUTH_EDX_OIDC_SECRET` - should not normally happen, as they are taken from the same variable.
 * If the `ImportEnrollmentsIntoMysql` task hasn't run yet, then the home page of Insights may return a 500 error,
   and `/edx/var/log/insights/edx.log` will show something like:
 
-  ```
+  ```bash
   NotFoundError: Resource http://127.0.0.1:8100/api/v0/course_summaries/ was not found on the API server.
   ```
   However, this only affects the home course list page.  The inner course-specific analytics pages will display fine.
@@ -230,7 +227,7 @@ Feature "switches" are either on or off.  Use this command to enable CSV downloa
 
 To list the current flags and switches, use the `--list` argument:
 
-```
+```bash
 ~/edx_analytics_dashboard/manage.py waffle_flag --list --settings=analytics_dashboard.settings.production
 ~/edx_analytics_dashboard/manage.py waffle_switch --list --settings=analytics_dashboard.settings.production
 ```

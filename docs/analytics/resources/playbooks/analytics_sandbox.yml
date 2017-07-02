@@ -1,3 +1,4 @@
+---
 - name: Bootstrap instance(s)
   hosts: all
   gather_facts: no

@@ -1,9 +1,12 @@
+---
 # Common variables - keep synced with vars.yml
 EDXAPP_LMS_BASE_SCHEME: 'x'
 EDXAPP_LMS_BASE: 'x'   # in vars it might be set to {{ LMS_SITE_NAME }} - in such case either copy LMS_SITE_NAME here
                        # or just copy value. The idea is to have EDXAPP_LMS_BASE set to the same value here and in
                        # vars.yml
 EDXAPP_CONTACT_EMAIL: 'x'
+COMMON_MYSQL_MIGRATE_USER: 'x'
+COMMON_MYSQL_MIGRATE_PASS: 'x'
 # end common variables
 
 # S3 tracking logs
@@ -17,7 +20,6 @@ COMMON_OBJECT_STORE_LOG_SYNC: true
 COMMON_OBJECT_STORE_LOG_SYNC_BUCKET: 'x'
 
 # Analytics
-
 # Shared DB config.
 ANALYTICS_MYSQL_USER: 'analytics'
 ANALYTICS_MYSQL_PASSWORD: 'x'
@@ -25,6 +27,7 @@ ANALYTICS_MYSQL_HOST: 'x2.eu-central-1.rds.amazonaws.com'
 ANALYTICS_MYSQL_PORT: '3306'
 
 # Analytics API
+# DB config.
 ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
 ANALYTICS_API_REPORTS_DB_NAME: 'reports'
 ANALYTICS_API_DATABASES:
@@ -42,23 +45,21 @@ ANALYTICS_API_DATABASES:
     PASSWORD: '{{ ANALYTICS_MYSQL_PASSWORD }}'
     HOST: '{{ ANALYTICS_MYSQL_HOST }}'
     PORT: '{{ ANALYTICS_MYSQL_PORT }}'
-
+# Auth.
 ANALYTICS_API_AUTH_TOKEN: 'x'
-
 ANALYTICS_API_USERS:
   analytics_api_user: '{{ ANALYTICS_API_AUTH_TOKEN }}'
-
+# Email.
 ANALYTICS_API_SECRET_KEY: 'x'
 ANALYTICS_API_EMAIL_HOST: 'localhost'
 ANALYTICS_API_EMAIL_HOST_USER: ''
 ANALYTICS_API_EMAIL_HOST_PASSWORD: ''
-
+# ElasticSearch
 ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID: 'x'
 ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY: 'x'
 ANALYTICS_API_ELASTICSEARCH_CONNECTION_CLASS: 'analytics_data_api.v0.connections.BotoHttpConnection'
 ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION: 'us-east-1'
 ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics-es-x.us-east-1.es.amazonaws.com'
-
 # If you're running the Analytics API on a separate machine from Insights, you'll need to tell Insights where to find
 # the API.
 # ANALYTICS_API_ENDPOINT: 'http://1.2.3.4:18100/api/v0' # or use https
@@ -69,41 +70,27 @@ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics
 # ANALYTICS_API_MAX_PAGE_SIZE: 10000
 
 # Insights
+# General.
 INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
 INSIGHTS_CMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_CMS_BASE }}'
 INSIGHTS_BASE_URL: 'x'
-INSIGHTS_MARKETING_BASE: '{{ INSIGHTS_LMS_BASE }}'
+INSIGHTS_MKTG_BASE: '{{ INSIGHTS_LMS_BASE }}'
 INSIGHTS_PRIVACY_POLICY_URL: '{{ INSIGHTS_MKTG_BASE }}/privacy'
 INSIGHTS_TERMS_OF_SERVICE_URL: '{{ INSIGHTS_MKTG_BASE }}/tos'
 INSIGHTS_DOC_BASE: 'http://edx-insights.readthedocs.org/'
 INSIGHTS_LMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_LMS_BASE }}/courses'
 INSIGHTS_CMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_CMS_BASE }}/course'
-
-
-# Include something like this to limit or re-order the fields included in the downloadable learner reports
-# INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: username,name,email,cohort,segments,language,year_of_birth,gender,level_of_education,mailing_address,goals,city,country,first_enrollment_date,last_updated
-
-INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: true  # omit or set to false for non-https insights setup
-INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit for non-HTTPs insights setup
-
-# If you're running an HTTPS Insights instance:
-## Paths are relative to the location of the playbook file.
-# NGINX_SSL_CERTIFICATE: '{{ playbook_dir }}/../../duke-extend/edxapp-ssl-cert.pem'
-# NGINX_SSL_KEY: '{{ playbook_dir }}/../../duke-extend/edxapp-ssl-key.key'
-# NGINX_REDIRECT_TO_HTTPS: true
-## Set to "forward_for_proto" if running behind a load balancer.
-# NGINX_HTTPS_REDIRECT_STRATEGY: "scheme"
-
+# Email.
 INSIGHTS_FEEDBACK_EMAIL: '{{ EDXAPP_CONTACT_EMAIL }}'
 INSIGHTS_EMAIL_HOST: 'localhost'
 INSIGHTS_EMAIL_HOST_PASSWORD: ''
 INSIGHTS_EMAIL_HOST_USER: ''
 INSIGHTS_ENABLE_AUTO_AUTH: false
-
+# Auth.
 INSIGHTS_OAUTH2_KEY: 'x'
 INSIGHTS_OAUTH2_SECRET: 'x'
 INSIGHTS_DATA_API_AUTH_TOKEN: '{{ ANALYTICS_API_AUTH_TOKEN }}'
-
+# DB config.
 INSIGHTS_DATABASE_NAME: 'dashboard'
 INSIGHTS_DATABASES:
   default:
@@ -113,6 +100,20 @@ INSIGHTS_DATABASES:
     PASSWORD: '{{ ANALYTICS_MYSQL_PASSWORD }}'
     HOST: '{{ ANALYTICS_MYSQL_HOST }}'
     PORT: '{{ ANALYTICS_MYSQL_PORT }}'
+# HTTPS.
+INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: true  # omit or set to false for non-https insights setup
+INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit for non-HTTPs insights setup
+# If you're running an HTTPS Insights instance:
+## Paths are relative to the location of the playbook file.
+# NGINX_ENABLE_SSL: true
+# NGINX_SSL_CERTIFICATE: '{{ playbook_dir }}/../../client-name/edxapp-ssl-cert.pem'
+# NGINX_SSL_KEY: '{{ playbook_dir }}/../../client-name/edxapp-ssl-key.key'
+# NGINX_REDIRECT_TO_HTTPS: true
+## Set to "forward_for_proto" if running behind a load balancer.
+# NGINX_HTTPS_REDIRECT_STRATEGY: "scheme"
+
+# Include something like this to limit or re-order the fields included in the downloadable learner reports
+# INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: username,name,email,cohort,segments,language,year_of_birth,gender,level_of_education,mailing_address,goals,city,country,first_enrollment_date,last_updated
 
 # Jenkins scheduler
 # See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
@@ -131,7 +132,7 @@ JENKINS_ANALYTICS_CREDENTIALS:
 # See AWS_analytics_setup.md#jenkins-seed-job
 ANALYTICS_SCHEDULE_SECURE_REPO_URL: "git@github.com:xxx/secure-configuration.git"
 ANALYTICS_SCHEDULE_SECURE_REPO_VERSION: "master"
-ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx-ops/edx-jenkins-job-dsl.git"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx/jenkins-job-dsl.git"
 ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION: "master"
 ANALYTICS_SCHEDULE_COMMON_VARS: "@{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/analytics-tasks/common-config.yml"
 
