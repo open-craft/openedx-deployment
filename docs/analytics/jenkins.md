@@ -12,7 +12,7 @@ If you're updating an existing Jenkins instance, check your `vars-analytics.yml`
 the patched `edx-analytics-configuration`.
 
 If you're setting up a new Jenkins instance, use [Option 1:
-`ansible-jenkins.yml`](#option-1-edx-configuration-ansible-jenkins).
+`ansible-jenkins.yml`](#option-1-ansible-jenkins).
 
 ### Option 1. ansible-jenkins
 
@@ -32,7 +32,7 @@ Ensure that the SSH key (e.g. `analytics.pem`) file can be used to shell into yo
 
 Run the playbook, e.g.:
 
-```
+```bash
 workon edx-configuration
 cd configuration/playbooks
 ansible-playbook -i '1.2.3.4,' \
@@ -68,7 +68,7 @@ To avoid seeing ansible errors about the seed job when running this playbook, we
 Checkout `open-craft/edx-analytics-configuration/analytics-sandbox` on the director instance, install requirements in
 dedicated virtual environment, and run the `jenkins/scheduler.yml` playbook, passing vars from the `vars.yml` file.
 Make sure to apply [`analytics-configuration` patches](https://github.com/open-craft/edx-analytics-configuration/commits/analytics-sandbox)
-(commit range 
+(commit range
 [46ea75c](https://github.com/open-craft/edx-analytics-configuration/commit/46ea75c0b6affeb57d40535e84fe53103b686a1f)..[9d6ea8f](https://github.com/open-craft/edx-analytics-configuration/commit/9d6ea8fbba820840c879cdf2f370d7fb06338096))
 for the playbook to run correctly.
 
@@ -77,13 +77,15 @@ edx/configration Jenkins scheduler section.
 
 Commands should look roughly like this:
 
-    workon edx-analytics-ansible
-    cd edx-analytics-configuration
-    ansible-playbook -i /path/to/analytics_hosts.lst \
-                     -e @/path/to/vars.yml \
-                     -u ubuntu \
-                     --private-key=/path/to/edxapp.pem \
-                     jenkins/scheduler.yml
+```bash
+workon edx-analytics-ansible
+cd edx-analytics-configuration
+ansible-playbook -i /path/to/analytics_hosts.lst \
+                  -e @/path/to/vars.yml \
+                  -u ubuntu \
+                  --private-key=/path/to/edxapp.pem \
+                  jenkins/scheduler.yml
+```
 
 #### Troubleshooting
 
@@ -111,7 +113,7 @@ Group. In order to access it, we need to set up SSH tunneling:
 
 After establishing the tunnels you should be able to access Jenkins at `localhost:8080`
 
-### Troubleshooting:
+### Troubleshooting
 
 * Can't connect to Jenkins:
   * Check tunneling is enabled
@@ -166,8 +168,8 @@ Download these files from the OpenCraft AWS account, and upload to the `client-n
 * `security.sh` - Before uploading to the client's S3, modify this script to
   fetch its `.deb` packages from the client's S3 bucket.
 
-Pipeline S3 bucket
-------------------
+Pipeline S3 buckets
+-------------------
 
 Pipeline S3 bucket (named: [client-name]-edxanalytics) should contain the following files:
 
@@ -210,14 +212,14 @@ Also, ensure these repositories are cloned and readable by the jenkins user:
 ## jenkins_env
 
 Running pipeline jobs requires some environment variables to be set - these are listed in
-[jenkins_env](resources/jenkins_env).  Variables include the [S3 buckets created above](#s3-buckets) and others:
+[jenkins_env](resources/jenkins_env).  Variables include the [S3 buckets created above](#pipeline-s3-buckets) and others:
 
 * `TRACKING_LOGS_S3_BUCKET="s3://client-name-tracking-logs"` - bucket containing edxapp tracking logs
 * `HADOOP_S3_BUCKET="s3://client-name-edxanalytics"` - bucket for temporary/intermediate storage of hadoop files
 * `TASK_CONFIGURATION_S3_BUCKET="s3://client-name-analytics-emr"` - bucket containing task configuration files
 * `EXTRA_VARS="@/home/jenkins/emr-vars.yml"` - ansible configuration for provisioning EMR cluster.  See
   [emr-vars.yml](#emr-vars-yml) below.
-* `CLUSTER_NAME="Client Name Analytics Cluster"` - default cluster name.  See [`CLUSTER_NAME`](#cluster-name) below.
+* `CLUSTER_NAME="Client Name Analytics Cluster"` - default cluster name.  See [`CLUSTER_NAME`](#cluster_name) below.
 * `OVERRIDE_CONFIG` - provides secure configuration variables to the EMR cluster.  See
   [analytics-override.cfg](#analytics-override-cfg) below.
 
@@ -279,11 +281,10 @@ Troubleshooting
   To use AWS keys, create a new analytics IAM user and use the ID and KEY for these variables. Note that this user
   should have `provision_emr_clusters` policy attached, otherwise trying to provision the cluster will fail with:
 
-  ```
+  ```bash
   ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
   ```
-* `java.lang.UnsupportedClassVersionError: org/edx/hadoop/input/ManifestTextInputFormat : Unsupported major.minor
-  version 51.0`  or `52.0`.  This error occurs if the `edx-analytics-hadoop-util.jar` you're using for your
+* `java.lang.UnsupportedClassVersionError: org/edx/hadoop/input/ManifestTextInputFormat : Unsupported major.minor version 51.0` or `52.0`.  This error occurs if the `edx-analytics-hadoop-util.jar` you're using for your
   `manifest.lib_jar` was compiled using a different version of java than what's running on the EMR cluster.
   The easiest way to rebuild the `edx-analytics-hadoop-util.jar` using the correct java version, and the required hadoop
   libraries, is to:
@@ -319,7 +320,7 @@ Troubleshooting
     jar cf edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class
     ```
 * EMR provisioning fails on the `hive_install` step with the following in stderr log:
-   ```
+   ```bash
   Exception in thread "main" com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.model.AmazonS3Exception: Moved Permanently (Service: Amazon S3; Status Code: 301; Error Code: 301 Moved Permanently; Request ID: A80C873649993B68), S3 Extended Request ID: z0mA1W5N329bG+Sznq/j7G2g5gsRgKWlzqdoRmYVoCIyELiv0CNk+hmbcm2fkd7G30c7Gzs7xXk=
   ```
   May occur if you're running on a region other than `us-east-1`.  See [emr-vars.yml](resources/emr-vars.yml)

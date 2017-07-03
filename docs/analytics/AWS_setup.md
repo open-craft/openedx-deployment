@@ -21,7 +21,7 @@ General Security Considerations
 * Each set of instances (`analytics`, `director`, etc.) should have its own ssh keypair.
 * Default Jenkins setup is unprotected and allows anyone to do anything, so never allow external access to Jenkins (even
   briefly).  Close the 8080 port on instance with Jenkins to external world *before* running ansible script that
-  installs Jenkins. Use [SSH tunneling](#ssh-tunneling-to-jenkins) to connect to it from your machine.
+  installs Jenkins. Use [SSH tunneling](jenkins.md#ssh-tunneling-to-jenkins) to connect to it from your machine.
 
 Sensitive Data
 --------------
@@ -54,7 +54,7 @@ We will create the following AWS resources in this setup:
 * One [RDS](#rds) instance for Insights and Analytics API MySQL databases.
 * One [ElasticSearch](#elasticsearch) instance.
 * EMR clusters are provisioned on a per-task basis.
-* Access between resources is controlled by [IAM](#IAM).
+* Access between resources is controlled by [IAM](#iam).
 
 IAM
 ---
@@ -127,10 +127,9 @@ The analytics API needs to be able to read indexes from the AWS ElasticSearch in
 * Give it Programmatic access
 * Attach the policy you created above (eg. `elasticsearch_all`)
 * Copy the security credentials to the [`vars-analytics.yml`](resources/vars-analytics.yml) fields:
-    * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
-    * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
+  * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
+  * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
-
 
 ### EMR Roles
 
@@ -142,17 +141,16 @@ The simplest way to generate the EMR IAM roles is to let AWS do it automatically
 * Note that we only need IAM roles created autyomatically, so set `Instance Type` to the smallest instance available
 * Click "Create cluster"
 * Check that these default roles and security groups are automatically generated:
-    * `EMR_DefaultRole`: default EMR role
-    * `EMR_EC2_DefaultRole`: role used by our standard [emr-vars.yml](resources/emr-vars.yml) configuration file.
-    * `ElasticMapReduce-master`: security group for the EMR master instances.
-    * `ElasticMapReduce-slave`: security group for the EMR slave instances.
+  * `EMR_DefaultRole`: default EMR role
+  * `EMR_EC2_DefaultRole`: role used by our standard [emr-vars.yml](resources/emr-vars.yml) configuration file.
+  * `ElasticMapReduce-master`: security group for the EMR master instances.
+  * `ElasticMapReduce-slave`: security group for the EMR slave instances.
 * You can now click "Terminate" to kill the cluster.
 
 To allow the EMR resources to write to the ElasticSearch index:
 
 * Go to `IAM -> Roles` and locate the `EMR_EC2_DefaultRole`.
 * Attach the ElasticSearch policy created above (`elasticsearch_all`).
-
 
 ### EMR Security Groups
 
@@ -162,7 +160,7 @@ To allow SSH access from the analytics instance to the EMR, we need to edit the 
 * Click on 'Network & Security: Security Groups'
 * Select the `ElasticMapReduce-master` security group and Edit the Inbound rules.
 * Add Inbound SSH access from the analytics security group:
-    * `SSH`, port `22`, source `analytics` Security Group
+  * `SSH`, port `22`, source `analytics` Security Group
 
 The analytics pipeline needs to be able to access the `analytics` and `edxapp` databases.
 
@@ -215,35 +213,33 @@ provisioning will be stuck at `provisioning`.  To check whether DNS hostnames ar
 
 This VPC ID belongs in the `vpc_subnet_id` variable in [`emr-vars.yml`](resources/emr-vars.yml).
 
-
-AWS ElasticSearch
------------------
+ElasticSearch
+-------------
 
 The Analytics Pipeline's Learner tasks write their statistics to an ElasticSearch index, which is read by the Analytics
 API's Learner API to display in Insights.
 
-  - Go to `Analytics -> Elasticsearch Service -> Create a new domain`
-  - Make sure the ES instance is being created under the correct AWS region.  It should match your EC2 region, and
-    [`ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION`](resources/vars-analytics.yml#L59).
-  - Choose a unique domain name, e.g. `client-name-analytics-es`
-  - Select Elasticsearch version 1.5
-  - Node configuration:
-    * Instance count: 1
-    * Instance type: `t2.small.elasticsearch`
-    * Enable dedicated master: no
-    * Enable zone awareness: no
-    * Storage type: EBS
-    * EBS volume type: General Purpose (SSD)
-    * EBS volume size: 10GB
-    * Automated snapshot start hour: 00:00 UTC (default)
-    * Advanced options: `rest.action.multi.allow_explicit_index: true`
+* Go to `Analytics -> Elasticsearch Service -> Create a new domain`
+* Make sure the ES instance is being created under the correct AWS region.  It should match your EC2 region, and
+  [`ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION`](resources/vars-analytics.yml#L59).
+* Choose a unique domain name, e.g. `client-name-analytics-es`
+* Select Elasticsearch version 1.5
+* Node configuration:
+  * Instance count: 1
+  * Instance type: `t2.small.elasticsearch`
+  * Enable dedicated master: no
+  * Enable zone awareness: no
+  * Storage type: EBS
+  * EBS volume type: General Purpose (SSD)
+  * EBS volume size: 10GB
+  * Automated snapshot start hour: 00:00 UTC (default)
+  * Advanced options: `rest.action.multi.allow_explicit_index: true`
 
 In around 10 minutes, the new ElasticSearch domain will be created.  Paste the `Endpoint` (e.g.
 `https://search-client-name-analytics-es-xxxxx.eu-west-1.es.amazonaws.com`) into two places:
 
 * `vars-analytics.yml`: [`ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST`](resources/vars-analytics.yml#L60)
 * `analytics-override.yml`: [`[elasticsearch] host`](resources/analytics-override.cfg#L48)
-
 
 EC2
 ---
@@ -257,20 +253,20 @@ Most other configuration steps you can leave at their default values, unless spe
    16.04 LTS (Xenial Xerus)* build.
    Search for version 16.04 amd64 `ebs-ssd` or `hvm-ssd` instance in your preferred AWS region, for example us-east-1.
    Copy the AMI ID of the image you selected (it will look something like `ami-d8132bb0`).
-2. Choose Instance Type - General Purpose `t2.medium`.
-3. Configure Instance
+1. Choose Instance Type - General Purpose `t2.medium`.
+1. Configure Instance
     1. Ensure the Network setting is set to the default VPC, *not* EC2-Classic.
-    2. Assign `edxanalytics` IAM role.
+    1. Assign `edxanalytics` IAM role.
        **Important**: roles can't be added after instance is launched, so forgetting to set this setting will require
        instance re-launch (and re-provisioning and re-configuring, depends on how late you noticed the problem).
-4. Add Storage - 50GB
-5. Tag Instance - `Name` tag with `analytics-N` value.
-6. Security Group - add instance to `default` and `analytics` security groups.
+1. Add Storage - 50GB
+1. Tag Instance - `Name` tag with `analytics-N` value.
+1. Security Group - add instance to `default` and `analytics` security groups.
    If `analytics` is not created yet - create it with the following rules:
     * `SSH`, port `22`, source `director` security group
     * `HTTP`, port `80`, source `Anywhere` (used to access the Insights over http)
     * `HTTPS`, port `443`, source `Anywhere` (used to access the Insights over https)
-7. SSH key pair - use `analytics` key pair (create if needed).
+1. SSH key pair - use `analytics` key pair (create if needed).
 
 Note that Insights runs on 18110 port by default, and we're not opening it, so it should be configured to listen on
 default HTTP and/or HTTPS ports with `INSIGHTS_NGINX_PORT` variables `INSIGHTS_NGINX_SSL_PORT` in
@@ -306,11 +302,11 @@ the following steps.  Schema changes aren't well handled in analytics-land yet, 
 tasks and API deployment process create their tables and fields.
 
 * Launch a new `analytics` RDS instance (see [RDS](../shared/RDS.md)).
-* Ensure that both the new `analytics` RDS, and the existing `edxapp` RDS, are members of the [`EMR RDS` security
-  group](#emr-security-groups) created above.  See [Modify Security Groups](../shared/RDS.md#modify-security-groups) for
-instructions on how to add a security group to an existing RDS instance.
-* [Test the RDS instance](../shared/RDS.md#test-access) from the Insights/Analytics API instance to ensure it can
-  connect to the new RDS instance.
+* Ensure that both the new `analytics` RDS, and the existing `edxapp` RDS, are members of the [`EMR RDS` security group](#emr-security-groups) created above.
+
+  See [Modify Security Groups](../shared/RDS.md#modify-security-groups) for instructions on how to add a security group to an existing RDS instance.
+
+* [Test the RDS instance](../shared/RDS.md#test-access) from the Insights/Analytics API instance to ensure it can connect to the new RDS instance.
 
 ### Create analytics databases and user
 
@@ -382,8 +378,8 @@ Elastic IP
 
 Create new Elastic IP and associate it with Insights EC2 instance (see [Elastic IP](../shared/Elastic_IP.md)).
 
-S3 buckets
-----------
+S3
+---
 
 Create the required S3 buckets:
 
