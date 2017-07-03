@@ -132,7 +132,7 @@ JENKINS_ANALYTICS_CREDENTIALS:
 # See AWS_analytics_setup.md#jenkins-seed-job
 ANALYTICS_SCHEDULE_SECURE_REPO_URL: "git@github.com:xxx/secure-configuration.git"
 ANALYTICS_SCHEDULE_SECURE_REPO_VERSION: "master"
-ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx/jenkins-job-dsl.git"
+ANALYTICS_SCHEDULE_JOBS_DSL_REPO_URL: "git@github.com:edx/jenkins-job-dsl-internal.git"
 ANALYTICS_SCHEDULE_JOBS_DSL_REPO_VERSION: "master"
 ANALYTICS_SCHEDULE_COMMON_VARS: "@{{ ANALYTICS_SCHEDULE_SECURE_REPO_DEST }}/analytics-tasks/common-config.yml"
 

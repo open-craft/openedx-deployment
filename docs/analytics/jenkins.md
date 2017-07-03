@@ -168,8 +168,8 @@ Download these files from the OpenCraft AWS account, and upload to the `client-n
 * `security.sh` - Before uploading to the client's S3, modify this script to
   fetch its `.deb` packages from the client's S3 bucket.
 
-Pipeline S3 bucket
-------------------
+Pipeline S3 buckets
+-------------------
 
 Pipeline S3 bucket (named: [client-name]-edxanalytics) should contain the following files:
 
