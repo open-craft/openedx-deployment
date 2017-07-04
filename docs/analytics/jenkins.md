@@ -37,7 +37,7 @@ workon edx-configuration
 cd configuration/playbooks
 ansible-playbook -i '1.2.3.4,' \
                  -e @/home/ubuntu/secure-config/vars-analytics.yml \
-                 -u ubuntu
+                 -u ubuntu \
                  --private-key=/home/ubuntu/secure-config/analytics.pem \
                  --skip-tags="jenkins-seed-job" \
                  analytics-jenkins.yml
@@ -171,7 +171,7 @@ Download these files from the OpenCraft AWS account, and upload to the `client-n
 Pipeline S3 buckets
 -------------------
 
-Pipeline S3 bucket (named: [client-name]-edxanalytics) should contain the following files:
+Pipeline S3 bucket (named: `client-name-edxanalytics`) should contain the following files:
 
 * `edxapp_creds` - contains credentials to be used to access edxapp DBs (`edxapp`, `ecommerce`, etc.). Readonly access
   is enough and preferred. Example: [creds_example](resources/creds_example)
@@ -202,6 +202,7 @@ Also, ensure these repositories are cloned and readable by the jenkins user:
   analytics_configuration_repo: 'https://github.com/xxx/edx-analytics-configuration.git'
   analytics_configuration_version: 'master'
   ```
+
 * `/home/jenkins/analytics-tasks`: clone the client's fork and branch, e.g.:
 
   ```yaml
@@ -280,6 +281,7 @@ Troubleshooting
 
   To use AWS keys, create a new analytics IAM user and use the ID and KEY for these variables. Note that this user
   should have `provision_emr_clusters` policy attached, otherwise trying to provision the cluster will fail with:
+  > ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
 
   ```bash
   ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
@@ -288,37 +290,35 @@ Troubleshooting
   `manifest.lib_jar` was compiled using a different version of java than what's running on the EMR cluster.
   The easiest way to rebuild the `edx-analytics-hadoop-util.jar` using the correct java version, and the required hadoop
   libraries, is to:
-  1. Launch an EMR cluster using the version of EMR configured for your analytics tasks.
 
-     Alternately, run one of the failing tasks with `export TERMINATE=false` in the environment, and this will leave the
-     EMR cluster running after the job has failed.
+    1. Launch an EMR cluster using the version of EMR configured for your analytics tasks.
 
-     Note the EMR Cluster ID for the `aws emr` step below.
-  1. Create a virtualenv, and install awscli:
+        Alternately, run one of the failing tasks with `export TERMINATE=false`
+        in the environment, and this will leave the EMR cluster running after
+        the job has failed.
 
-    ```bash
-    pip install awscli
-    ```
-  1. Create an IAM user and attach the `provision_emr_clusters` policy you created above.
-  1. Using the AWS Access key ID and secret, authenticate your awscli:
-
-    ```bash
-    aws configure
-    ```
+        Note the EMR Cluster ID for the `aws emr` step below.
+    1. Create a virtualenv, and install awscli:
+        ```bash
+        pip install awscli
+        ```
+    1. Create an IAM user and attach the `provision_emr_clusters` policy you created above.
+    1. Using the AWS Access key ID and secret, authenticate your awscli:
+        ```bash
+        aws configure
+        ```
   1. Shell into the EMR cluster using the `analytics.pem` file:
-
-    ```bash
-    aws emr ssh --cluster-id j-xxxxxxxxxxxx --key-pair-file=analytics.pem
-    ```
-
+     ```bash
+     aws emr ssh --cluster-id j-xxxxxxxxxxxx --key-pair-file=analytics.pem
+     ```
   1. Clone the edx-analytics-hadoop-util repo, and build the jar file:
-
     ```bash
     git clone https://github.com/edx/edx-analytics-hadoop-util
     cd edx-analytics-hadoop-util
     javac -cp "/usr/lib/hadoop/client/*" org/edx/hadoop/input/ManifestTextInputFormat.java
     jar cf edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class
     ```
+
 * EMR provisioning fails on the `hive_install` step with the following in stderr log:
    ```bash
   Exception in thread "main" com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.model.AmazonS3Exception: Moved Permanently (Service: Amazon S3; Status Code: 301; Error Code: 301 Moved Permanently; Request ID: A80C873649993B68), S3 Extended Request ID: z0mA1W5N329bG+Sznq/j7G2g5gsRgKWlzqdoRmYVoCIyELiv0CNk+hmbcm2fkd7G30c7Gzs7xXk=

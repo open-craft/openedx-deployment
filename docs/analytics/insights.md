@@ -40,9 +40,10 @@ Run Ansible
 You might want to enable logging ansible output into a file.  Just don't forget to clean it up periodically, ansible
 only appends to that file (and running multiple tasks result in output mixed).
 
-To log to a file, edit `configuration/playbooks/ansible.cfg` and add this line:
+To log to a file, update `configuration/playbooks/ansible.cfg`:
 
-```
+```yaml
+[defaults]
 log_path=ansible.log
 ```
 
@@ -50,10 +51,7 @@ You may also want to create a screen session to run ansible in, just in case you
 which can take some time. See this [`screen` quick reference](http://aperiodic.net/screen/quick_reference) and the [GNU
 `screen` Users Manual](https://www.gnu.org/software/screen/manual/screen.html) for help using `screen`.
 
-Run the [playbook(s) created above](#playbooks):
-
-
-Run the playbook using the following arguments:
+Run the [playbook(s) created above](#playbooks) using the following arguments:
 
 * `-i "<analytics-ip>,"`: The internal IP address of your Insights/Analytics API EC2 instance.  Note the trailing comma.
 * `-u ubuntu`: User on the analytics EC2 instance with sudo access.
@@ -114,8 +112,10 @@ ubuntu@analytics> Ctrl-D
 ubuntu@director> # rerun ansible task
 ```
 
-Verify Insights
-===============
+OAuth2
+======
+
+While the playbook is running, you can create the OAuth2 clients used by the analytics instance.
 
 Insights OAuth2
 ---------------
@@ -125,6 +125,7 @@ your Insights EC2 instance is provisioned.  Just make sure the `INSIGHTS_OAUTH2_
 match those specified in your [`vars-analytics.yml`](resources/vars-analytics.yml).
 
 ```bash
+# ssh to edxapp instance
 sudo -Hu edxapp bash
 cd
 source edxapp_env
@@ -137,6 +138,40 @@ cd edx-platform
     --client_secret <INSIGHTS_OAUTH2_SECRET> \
     --trusted
 ```
+
+### Analytics Pipeline OAuth2 client
+
+Do this step only if your client requires the Problem Response Reports.
+
+This client is used by the analytics pipeline `ProblemResponseReportWorkflow` task to fetch course list and course
+blocks data from the LMS REST API.
+
+Copy the `client_id` and `client_secret` used here into [`analytics-override.cfg`](resources/analytics-override.cfg)
+under `[edx-rest-api]`.
+
+Provide a `user` name who has global staff level access to the courses you'll be fetching.
+
+*Note:* Because this client doesn't use OIDC handshaking, the URLs provided are not important.  However, the `user` is.
+
+```bash
+
+# ssh to edxapp instance
+sudo -Hu edxapp bash
+cd
+source edxapp_env
+cd edx-platform
+./manage.py lms --setting=aws create_oauth2_client \
+    http://localhost:9999 \
+    http://localhost:9999/complete/edx-oidc/ \
+    confidential --client_name analytics-pipeline \
+    --client_id <client_id> \
+    --client_secret <client_secret> \
+    --user <staff_username> \
+    --trusted
+```
+
+Verify Insights
+===============
 
 When ansible finishes, you should be able to go to Insights URL and log in into it using LMS as OAuth2 identity
 provider.
@@ -243,3 +278,5 @@ We commonly enable these features:
   be run to populate the charts.
 * `enable_learner_download` (switch): shows a "Download CSV" button on the Learner Analytics page.  Requires the
   `display_learner_analytics` flag to be enabled, and its associated tasks to be run.
+* `enable_problem_response_download`: shows a "Download CSV" link on the Performance tab.  Enable only if your client
+  requires these reports.  Run the `ProblemResponseReportWorkflow` pipeline task to generate reports for download.
