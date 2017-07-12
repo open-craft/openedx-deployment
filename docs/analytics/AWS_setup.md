@@ -131,6 +131,23 @@ The analytics API needs to be able to read indexes from the AWS ElasticSearch in
   * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
 
+### VPC DNS hostname
+
+Ensure DNS hostnames are enabled in the VPC where your EMR jobs will be running.  If DNS hostnames are disabled, EMR
+provisioning will be stuck at `provisioning`.  To check whether DNS hostnames are enabled:
+
+* Go to the AWS VPC dashboard, and select your VPC.
+* Check the value of "DNS hostnames" in the Summary tab/pane. If it says `no`, click `Actions -> Edit DNS Hostnames`,
+  select `Yes`, and save.
+
+If you are creating your EMR cluster within a VPC then additionally, you'll need to add an Internet Gateway to your VPC:
+
+* Create an Internet Gateway and attached it to your VPC.
+* Add the Internet Gateway to the Route Table.
+
+Here's a good [doc](https://aws.amazon.com/blogs/big-data/launching-and-running-an-amazon-emr-cluster-inside-a-vpc/) explaining this.
+
+
 ### EMR Roles
 
 The simplest way to generate the EMR IAM roles is to let AWS do it automatically:
@@ -245,15 +262,6 @@ bucket.
    - Click "Create"
 
 * Select `Save`
-
-### VPC DNS hostname
-
-Ensure DNS hostnames are enabled in the VPC where your EMR jobs will be running.  If DNS hostnames are disabled, EMR
-provisioning will be stuck at `provisioning`.  To check whether DNS hostnames are enabled:
-
-* Go to the AWS VPC dashboard, and select your VPC.
-* Check the value of "DNS hostnames" in the Summary tab/pane. If it says `no`, click `Actions -> Edit DNS Hostnames`,
-  select `Yes`, and save.
 
 ### VPC Subnet
 
