@@ -325,3 +325,10 @@ Troubleshooting
   ```
   May occur if you're running on a region other than `us-east-1`.  See [emr-vars.yml](resources/emr-vars.yml)
   configuration for `core-site` to set the `fs.s3n.endpoint`.
+
+* EMR provisioning fails during provisioning with:
+  ```bash
+  The subnet configuration was invalid: No route to any external sources detected in Route Table for Subnet: subnet-xxxxx for VPC: vpc-xxxxx
+  ```
+  This could mean you have not created an Internet Gateway for your VPC. See [VPC DNS Hostname](AWS_setup.md#vpc-dns-hostname)
+  
