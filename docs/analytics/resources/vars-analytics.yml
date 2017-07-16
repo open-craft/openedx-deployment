@@ -16,6 +16,10 @@ AWS_S3_LOGS_SECRET_KEY: 'x'
 AWS_S3_LOGS_NOTIFY_EMAIL: 'ops@example.com'
 AWS_S3_LOGS_FROM_EMAIL: '{{ EDXAPP_DEFAULT_FROM_EMAIL }}'
 
+OPENEDX_RELEASE: 'master'  # change to open-release/ficus.3 or similar
+COMMON_GIT_PATH: 'edx'  # change if using your own forks
+
+
 # Analytics
 # Shared DB config.
 ANALYTICS_MYSQL_USER: 'analytics'
@@ -24,6 +28,8 @@ ANALYTICS_MYSQL_HOST: 'x2.eu-central-1.rds.amazonaws.com'
 ANALYTICS_MYSQL_PORT: '3306'
 
 # Analytics API
+ANALYTICS_API_VERSION: '{{ OPENEDX_RELEASE }}'
+
 # DB config.
 ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
 ANALYTICS_API_REPORTS_DB_NAME: 'reports'
@@ -82,6 +88,7 @@ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics
 
 # Insights
 # General.
+INSIGHTS_VERSION: '{{ OPENEDX_RELEASE }}'
 INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
 INSIGHTS_CMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_CMS_BASE }}'
 INSIGHTS_BASE_URL: 'x'
