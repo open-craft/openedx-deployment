@@ -81,7 +81,9 @@ body, and list the environment variables in the actual shell command inline.
 
 ## Answer Distribution
 
-Performance (Graded and Ungraded); runs nightly.
+In edx docs: [Performance (graded and ungraded)](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#performance-graded-and-ungraded)
+
+Runs nightly.
 
 Run on periodic build schedule, e.g. `H 0 * * *`.
 
@@ -113,6 +115,8 @@ analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkf
 
 ## Enrollments Total, Enrollments by Gender, Age, Education
 
+In edx docs: [Enrollment](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#enrollment)
+
 Imports enrollments data; runs daily.
 
 Run on periodic build schedule, e.g. `H 6 * * *`.
@@ -130,6 +134,8 @@ analytics-configuration/automation/run-automated-task.sh ImportEnrollmentsIntoMy
 ```
 
 ## Enrollments By Country
+
+In edx docs: [Geography](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#geography)
 
 Enrollments by geolocation; runs daily.
 
@@ -149,6 +155,8 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseEnro
 
 ## Course Activity
 
+In edx docs: [Engagement](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#engagement)
+
 Weekly course activity; runs every Monday.
 
 Run on periodic build schedule, e.g. `H 3 * * 1`.
@@ -167,6 +175,8 @@ analytics-configuration/automation/run-automated-task.sh CourseActivityWeeklyTas
 ```
 
 ## Module Engagement - bootstrap task
+
+In edx docs: [Learner analytics](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#learner-analytics)
 
 The primary entry point `ModuleEngagementWorkflowTask` is run daily and updates the elasticsearch index and MySQL
 database with the aggregates computed from the last 7 days of activity.
@@ -195,6 +205,8 @@ analytics-configuration/automation/run-automated-task.sh ModuleEngagementInterva
 
 ## Module Engagement
 
+In edx docs: [ModuleEngagementWorkflowTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id13)
+
 Weekly course module engagement data stored in an ElasticSearch index; runs daily.
 
 Run on periodic build schedule, e.g. `H 15 * * *`.
@@ -215,6 +227,8 @@ analytics-configuration/automation/run-automated-task.sh ModuleEngagementWorkflo
 
 ## Videos
 
+In edx docs: [Video](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#video)
+
 Tracks video interactions; runs daily.
 
 Run on periodic build schedule, e.g. `H 9 * * *`.
@@ -234,6 +248,8 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTa
 ## Student Engagement
 
 ### Daily Reports
+
+In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
 
 Run on a daily build schedule, e.g. `H 19 * * *`.
 
@@ -256,6 +272,8 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
 
 ### Weekly Reports
 
+In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
+
 Run on a weekly build schedule, e.g. `H 21 * * 1`.
 
 Run this task only if your client requires weekly Student Engagement reports.
@@ -277,6 +295,8 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
 ```
 
 ## Problem Response Reports
+
+In edx docs: [ProblemResponseReportWorkflow](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/workflow_entry_point.html#edx.analytics.tasks.insights.problem_response.ProblemResponseReportWorkflow)
 
 Generates learners' problem responses reports; runs daily.
 
