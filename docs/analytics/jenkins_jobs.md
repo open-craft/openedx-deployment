@@ -149,9 +149,9 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseEnro
 
 ## Course Activity
 
-Weekly course activity; runs daily.
+Weekly course activity; runs every Monday.
 
-Run on periodic build schedule, e.g. `H 3 * * *`.
+Run on periodic build schedule, e.g. `H 3 * * 1`.
 
 ```bash
 . /home/jenkins/jenkins_env
