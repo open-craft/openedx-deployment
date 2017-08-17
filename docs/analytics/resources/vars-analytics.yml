@@ -8,6 +8,9 @@ EDXAPP_CMS_BASE: 'x'
 EDXAPP_CONTACT_EMAIL: 'x'
 COMMON_MYSQL_MIGRATE_USER: 'x'
 COMMON_MYSQL_MIGRATE_PASS: 'x'
+
+OPENEDX_RELEASE: 'master' # For stability, choose a specific release, e.g. open-release/ficus.3
+COMMON_GIT_PATH: 'edx'  # change if using your own forks
 # end common variables
 
 # S3 tracking logs
@@ -25,6 +28,8 @@ ANALYTICS_MYSQL_HOST: 'x2.eu-central-1.rds.amazonaws.com'
 ANALYTICS_MYSQL_PORT: '3306'
 
 # Analytics API
+ANALYTICS_API_VERSION: '{{ OPENEDX_RELEASE }}'
+
 # DB config.
 ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
 ANALYTICS_API_REPORTS_DB_NAME: 'reports'
@@ -83,6 +88,7 @@ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics
 
 # Insights
 # General.
+INSIGHTS_VERSION: '{{ OPENEDX_RELEASE }}'
 INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
 INSIGHTS_CMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_CMS_BASE }}'
 INSIGHTS_BASE_URL: 'x'
