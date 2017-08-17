@@ -4,6 +4,7 @@ EDXAPP_LMS_BASE_SCHEME: 'x'
 EDXAPP_LMS_BASE: 'x'   # in vars it might be set to {{ LMS_SITE_NAME }} - in such case either copy LMS_SITE_NAME here
                        # or just copy value. The idea is to have EDXAPP_LMS_BASE set to the same value here and in
                        # vars.yml
+EDXAPP_CMS_BASE: 'x'
 EDXAPP_CONTACT_EMAIL: 'x'
 COMMON_MYSQL_MIGRATE_USER: 'x'
 COMMON_MYSQL_MIGRATE_PASS: 'x'
