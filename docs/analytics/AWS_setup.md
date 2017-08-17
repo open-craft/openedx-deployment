@@ -336,10 +336,10 @@ sudo apt-get update && sudo apt-get -y upgrade
 ### Director EC2
 
 The `director` instance should be running a similar version of Ubuntu as the analytics services you're provisioning.  It
-can be a `t2.micro`, with 8GB disk space, and should be a member of the `default` Security Group shared by your other
-AWS resources, and a `director` security group with one rule defined:
-
-* `SSH`, port `22`, source `Anywhere`
+can be a `t2.micro`, with 8GB disk space, and should be a member of:
+* the `default` Security Group shared by your other AWS resources, and
+* a `director` security group with one rule defined:
+  `SSH`, port `22`, source `Anywhere`
 
 See [Director Setup](../shared/director.md) for details on how to set up the ansible deployment "director" instance.
 
