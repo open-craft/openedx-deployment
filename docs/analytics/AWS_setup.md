@@ -102,34 +102,15 @@ We will create an IAM role for the `analytics` EC2 instance, to give it permissi
 
 The analytics API needs to be able to read indexes from the AWS ElasticSearch instance.
 
-* Go to `IAM -> Policies -> Create Policy`
-* Select "Create Your Own Policy"
-* Give it a recognizable name (eg. `elasticsearch_all`)
-* Paste this into "Policy Body":
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-          "Effect": "Allow",
-          "Resource": "*",
-          "Action": [
-              "es:*"
-          ]
-      }
-  ]
-}
-```
-
 * Go to `IAM -> Users -> Add User`
 * Give it a recognizable name (eg. `analytics_elasticsearch`)
 * Give it Programmatic access
-* Attach the policy you created above (eg. `elasticsearch_all`)
+* Don't worry about attaching any policies; access will be granted when the ElasticSearch instance is created.
 * Copy the security credentials to the [`vars-analytics.yml`](resources/vars-analytics.yml) fields:
   * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
   * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
+* Note the user's ARN code for use when the [ElasticSearch service](#elasticsearch) is created.
 
 ### VPC DNS hostname
 
@@ -289,6 +270,7 @@ API's Learner API to display in Insights.
   * EBS volume size: 10GB
   * Automated snapshot start hour: 00:00 UTC (default)
   * Advanced options: `rest.action.multi.allow_explicit_index: true`
+* Grant full access to the [`analytics_elasticsearch` user](#elasticsearch-user) created above.
 
 In around 10 minutes, the new ElasticSearch domain will be created.  Paste the `Endpoint` (e.g.
 `https://search-client-name-analytics-es-xxxxx.eu-west-1.es.amazonaws.com`) into two places:
