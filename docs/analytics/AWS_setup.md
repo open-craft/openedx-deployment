@@ -129,6 +129,16 @@ If you are creating your EMR cluster within a VPC then additionally, you'll need
 Here's a good [doc](https://aws.amazon.com/blogs/big-data/launching-and-running-an-amazon-emr-cluster-inside-a-vpc/) explaining this.
 
 
+### Analytics Security Group
+
+* Go to the EC2 dashboard in AWS console.
+* Click on 'Network & Security: Security Groups' and click 'Create Security Group'.
+* `analytics` with the following Inbound rules:
+    * `SSH`, port `22`, source `director` security group
+    * `HTTP`, port `80`, source `Anywhere` (used to access the Insights over http)
+    * `HTTPS`, port `443`, source `Anywhere` (used to access the Insights over https)
+
+
 ### EMR Roles
 
 The simplest way to generate the EMR IAM roles is to let AWS do it automatically:
@@ -136,9 +146,11 @@ The simplest way to generate the EMR IAM roles is to let AWS do it automatically
 * Go to the EMR dashboard in AWS console.
 * Click "Create Cluster"
 * Make sure "Permissions" are set to `Default`
-* Note that we only need IAM roles created autyomatically, so set `Instance Type` to the smallest instance available
+* Note that we only need IAM roles created automatically, so set `Instance Type` to the smallest instance available, and
+  create only 1.
+* Use the `analytics` security group.
 * Click "Create cluster"
-* Check that these default roles and security groups are automatically generated:
+* Wait for these default roles and security groups to be automatically generated:
   * `EMR_DefaultRole`: default EMR role
   * `EMR_EC2_DefaultRole`: role used by our standard [emr-vars.yml](resources/emr-vars.yml) configuration file.
   * `ElasticMapReduce-master`: security group for the EMR master instances.
