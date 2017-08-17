@@ -44,7 +44,7 @@ To log to a file, update `configuration/playbooks/ansible.cfg`:
 
 ```yaml
 [defaults]
-log_path=ansible.log
+log_path=./ansible.log
 ```
 
 You may also want to create a screen session to run ansible in, just in case your network drops out during provisioning,
