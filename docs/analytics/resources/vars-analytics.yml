@@ -136,8 +136,11 @@ INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit f
 # INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: username,name,email,cohort,segments,language,year_of_birth,gender,level_of_education,mailing_address,goals,city,country,first_enrollment_date,last_updated
 
 # Jenkins scheduler
-# See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
 
+# Check for available versions: http://pkg.jenkins.io/debian-stable/
+jenkins_version: '1.651.3'
+
+# See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
 ## Option 1: analytics-jenkins Jenkins setup
 JENKINS_ANALYTICS_AUTH_REALM: none
 JENKINS_ANALYTICS_CREDENTIALS:
