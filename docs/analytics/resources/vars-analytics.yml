@@ -121,6 +121,7 @@ INSIGHTS_DATABASES:
     PORT: '{{ ANALYTICS_MYSQL_PORT }}'
 # HTTPS.
 INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: true  # omit or set to false for non-https insights setup
+INSIGHTS_NGINX_PORT: 80
 INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit for non-HTTPs insights setup
 # If you're running an HTTPS Insights instance:
 ## Paths are relative to the location of the playbook file.
