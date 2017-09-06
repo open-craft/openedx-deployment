@@ -307,7 +307,9 @@ Most other configuration steps you can leave at their default values, unless spe
     1. Ensure the Network setting is set to the default VPC, *not* EC2-Classic.
     1. Assign `edxanalytics` IAM role.
        **Important**: roles can't be added after instance is launched, so forgetting to set this setting will require
-       instance re-launch (and re-provisioning and re-configuring, depends on how late you noticed the problem).
+       instance re-launch.
+       If you missed this step and don't want to re-run your provisioning steps, you can create an image (AMI) from the
+       incorrect instance, and launch a new EC2 using from that image, and correct the IAM role issue.
 1. Add Storage - 50GB
 1. Tag Instance - `Name` tag with `analytics-N` value.
 1. Security Group - add instance to `default` and `analytics` security groups.
