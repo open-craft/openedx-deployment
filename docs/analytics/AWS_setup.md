@@ -102,34 +102,15 @@ We will create an IAM role for the `analytics` EC2 instance, to give it permissi
 
 The analytics API needs to be able to read indexes from the AWS ElasticSearch instance.
 
-* Go to `IAM -> Policies -> Create Policy`
-* Select "Create Your Own Policy"
-* Give it a recognizable name (eg. `elasticsearch_all`)
-* Paste this into "Policy Body":
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-          "Effect": "Allow",
-          "Resource": "*",
-          "Action": [
-              "es:*"
-          ]
-      }
-  ]
-}
-```
-
 * Go to `IAM -> Users -> Add User`
 * Give it a recognizable name (eg. `analytics_elasticsearch`)
 * Give it Programmatic access
-* Attach the policy you created above (eg. `elasticsearch_all`)
+* Don't worry about attaching any policies; access will be granted when the ElasticSearch instance is created.
 * Copy the security credentials to the [`vars-analytics.yml`](resources/vars-analytics.yml) fields:
   * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
   * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
+* Note the user's ARN code for use when the [ElasticSearch service](#elasticsearch) is created.
 
 ### VPC DNS hostname
 
@@ -148,6 +129,16 @@ If you are creating your EMR cluster within a VPC then additionally, you'll need
 Here's a good [doc](https://aws.amazon.com/blogs/big-data/launching-and-running-an-amazon-emr-cluster-inside-a-vpc/) explaining this.
 
 
+### Analytics Security Group
+
+* Go to the EC2 dashboard in AWS console.
+* Click on 'Network & Security: Security Groups' and click 'Create Security Group'.
+* `analytics` with the following Inbound rules:
+    * `SSH`, port `22`, source `director` security group
+    * `HTTP`, port `80`, source `Anywhere` (used to access the Insights over http)
+    * `HTTPS`, port `443`, source `Anywhere` (used to access the Insights over https)
+
+
 ### EMR Roles
 
 The simplest way to generate the EMR IAM roles is to let AWS do it automatically:
@@ -155,9 +146,11 @@ The simplest way to generate the EMR IAM roles is to let AWS do it automatically
 * Go to the EMR dashboard in AWS console.
 * Click "Create Cluster"
 * Make sure "Permissions" are set to `Default`
-* Note that we only need IAM roles created autyomatically, so set `Instance Type` to the smallest instance available
+* Note that we only need IAM roles created automatically, so set `Instance Type` to the smallest instance available, and
+  create only 1.
+* Use the `analytics` security group.
 * Click "Create cluster"
-* Check that these default roles and security groups are automatically generated:
+* Wait for these default roles and security groups to be automatically generated:
   * `EMR_DefaultRole`: default EMR role
   * `EMR_EC2_DefaultRole`: role used by our standard [emr-vars.yml](resources/emr-vars.yml) configuration file.
   * `ElasticMapReduce-master`: security group for the EMR master instances.
@@ -289,6 +282,7 @@ API's Learner API to display in Insights.
   * EBS volume size: 10GB
   * Automated snapshot start hour: 00:00 UTC (default)
   * Advanced options: `rest.action.multi.allow_explicit_index: true`
+* Grant full access to the [`analytics_elasticsearch` user](#elasticsearch-user) created above.
 
 In around 10 minutes, the new ElasticSearch domain will be created.  Paste the `Endpoint` (e.g.
 `https://search-client-name-analytics-es-xxxxx.eu-west-1.es.amazonaws.com`) into two places:
@@ -313,7 +307,9 @@ Most other configuration steps you can leave at their default values, unless spe
     1. Ensure the Network setting is set to the default VPC, *not* EC2-Classic.
     1. Assign `edxanalytics` IAM role.
        **Important**: roles can't be added after instance is launched, so forgetting to set this setting will require
-       instance re-launch (and re-provisioning and re-configuring, depends on how late you noticed the problem).
+       instance re-launch.
+       If you missed this step and don't want to re-run your provisioning steps, you can create an image (AMI) from the
+       incorrect instance, and launch a new EC2 using from that image, and correct the IAM role issue.
 1. Add Storage - 50GB
 1. Tag Instance - `Name` tag with `analytics-N` value.
 1. Security Group - add instance to `default` and `analytics` security groups.
@@ -342,10 +338,10 @@ sudo apt-get update && sudo apt-get -y upgrade
 ### Director EC2
 
 The `director` instance should be running a similar version of Ubuntu as the analytics services you're provisioning.  It
-can be a `t2.micro`, with 8GB disk space, and should be a member of the `default` Security Group shared by your other
-AWS resources, and a `director` security group with one rule defined:
-
-* `SSH`, port `22`, source `Anywhere`
+can be a `t2.micro`, with 8GB disk space, and should be a member of:
+* the `default` Security Group shared by your other AWS resources, and
+* a `director` security group with one rule defined:
+  `SSH`, port `22`, source `Anywhere`
 
 See [Director Setup](../shared/director.md) for details on how to set up the ansible deployment "director" instance.
 

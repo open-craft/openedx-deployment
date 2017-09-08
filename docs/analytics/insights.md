@@ -44,7 +44,7 @@ To log to a file, update `configuration/playbooks/ansible.cfg`:
 
 ```yaml
 [defaults]
-log_path=ansible.log
+log_path=./ansible.log
 ```
 
 You may also want to create a screen session to run ansible in, just in case your network drops out during provisioning,
@@ -215,6 +215,21 @@ your `vars-analytics.yml`.
       * Insights setting `SOCIAL_AUTH_EDX_OIDC_SECRET` does not match `Client secret` in LMS
       * Insights setting `SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY` does not match
                 `SOCIAL_AUTH_EDX_OIDC_SECRET` - should not normally happen, as they are taken from the same variable.
+* Insights home shows 500 after logging in, and `/edx/var/log/insights/edx.log` shows something like:
+
+    ```bash
+    ProgrammingError: (1146, "Table 'dashboard.soapbox_message' doesn't exist")
+    ```
+    To fix this, run syncdb as the `insights` user:
+
+    ```bash
+    sudo -u insights -Hs
+    source ~/insights_env
+    cd ~/edx-analytics-dashboard
+    ./manage.py migrate --run-syncdb
+    ```
+
+    cf [openedx-analytics post](https://groups.google.com/forum/#!msg/openedx-analytics/WkqJwPERf80/WVtu155PBwAJ)
 * If the `ImportEnrollmentsIntoMysql` task hasn't run yet, then the home page of Insights may return a 500 error,
   and `/edx/var/log/insights/edx.log` will show something like:
 

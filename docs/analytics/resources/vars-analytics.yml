@@ -4,9 +4,13 @@ EDXAPP_LMS_BASE_SCHEME: 'x'
 EDXAPP_LMS_BASE: 'x'   # in vars it might be set to {{ LMS_SITE_NAME }} - in such case either copy LMS_SITE_NAME here
                        # or just copy value. The idea is to have EDXAPP_LMS_BASE set to the same value here and in
                        # vars.yml
+EDXAPP_CMS_BASE: 'x'
 EDXAPP_CONTACT_EMAIL: 'x'
 COMMON_MYSQL_MIGRATE_USER: 'x'
 COMMON_MYSQL_MIGRATE_PASS: 'x'
+
+OPENEDX_RELEASE: 'master' # For stability, choose a specific release, e.g. open-release/ficus.3
+COMMON_GIT_PATH: 'edx'  # change if using your own forks
 # end common variables
 
 # S3 tracking logs
@@ -24,6 +28,8 @@ ANALYTICS_MYSQL_HOST: 'x2.eu-central-1.rds.amazonaws.com'
 ANALYTICS_MYSQL_PORT: '3306'
 
 # Analytics API
+ANALYTICS_API_VERSION: '{{ OPENEDX_RELEASE }}'
+
 # DB config.
 ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
 ANALYTICS_API_REPORTS_DB_NAME: 'reports'
@@ -82,6 +88,7 @@ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'https://search-client-name-analytics
 
 # Insights
 # General.
+INSIGHTS_VERSION: '{{ OPENEDX_RELEASE }}'
 INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_LMS_BASE }}'
 INSIGHTS_CMS_BASE: '{{ EDXAPP_LMS_BASE_SCHEME }}://{{ EDXAPP_CMS_BASE }}'
 INSIGHTS_BASE_URL: 'x'
@@ -98,6 +105,7 @@ INSIGHTS_EMAIL_HOST_PASSWORD: ''
 INSIGHTS_EMAIL_HOST_USER: ''
 INSIGHTS_ENABLE_AUTO_AUTH: false
 # Auth.
+INSIGHTS_SECRET_KEY: 'x'
 INSIGHTS_OAUTH2_KEY: 'x'
 INSIGHTS_OAUTH2_SECRET: 'x'
 INSIGHTS_DATA_API_AUTH_TOKEN: '{{ ANALYTICS_API_AUTH_TOKEN }}'
@@ -113,6 +121,7 @@ INSIGHTS_DATABASES:
     PORT: '{{ ANALYTICS_MYSQL_PORT }}'
 # HTTPS.
 INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: true  # omit or set to false for non-https insights setup
+INSIGHTS_NGINX_PORT: 80
 INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit for non-HTTPs insights setup
 # If you're running an HTTPS Insights instance:
 ## Paths are relative to the location of the playbook file.
@@ -127,8 +136,11 @@ INSIGHTS_NGINX_SSL_PORT: 443                  # required for https setup, omit f
 # INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: username,name,email,cohort,segments,language,year_of_birth,gender,level_of_education,mailing_address,goals,city,country,first_enrollment_date,last_updated
 
 # Jenkins scheduler
-# See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
 
+# Check for available versions: http://pkg.jenkins.io/debian-stable/
+jenkins_version: '1.651.3'
+
+# See jenkins.md#provision-jenkins-scheduler for information on the alternative jenkins setups.
 ## Option 1: analytics-jenkins Jenkins setup
 JENKINS_ANALYTICS_AUTH_REALM: none
 JENKINS_ANALYTICS_CREDENTIALS:
