@@ -4,7 +4,7 @@ Director Setup
 The `director` instance is used to run ansible playbooks in the
 [`edx/configuration`](https://github.com/edx/configuration) repo.
 
-When we [../openstack-openedx/aws-deployment.md](deploy an instance or an upgrade), we don't SSH directly into the server.
+When we [deploy an instance or an upgrade](../openstack-openedx/aws-deployment.md), we don't SSH directly into the server.
 Instead, we SSH to the `director`, and from `director` we SSH to the server we're deploying.
 This is done for security (the server only accepts SSH connections from `director`) and to offer us a stable environment with the right versions.
 

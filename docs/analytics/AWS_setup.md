@@ -5,7 +5,7 @@ This document describes how to deploy the edX Analytics stack to the [Amazon Web
 will be using [Ansible](https://www.ansible.com/) to automate deployment where ansible playbooks are available, but some
 manual setup is still required.
 
-To deploy LMS/CMS, see [../aws-openedx/aws-deployment.md](openEdx AWS deployment and upgrades).
+To deploy LMS/CMS, see [openEdx AWS deployment and upgrades](../aws-openedx/aws-deployment.md).
 
 Prerequisites
 =============
