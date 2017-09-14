@@ -1,4 +1,4 @@
-# openEdx AWS Production Deployment and Upgrades
+# Open edX AWS Production Deployment and Upgrades
 
 In contrast to OCIM updates, which are automated through a control panel, AWS updates are more manual and we have to actually log in to the AWS panel and SSH to the instance.
 Apart from this, the main part of the deployment process is an `ansible` playbook which does all the provisioning automatically.
