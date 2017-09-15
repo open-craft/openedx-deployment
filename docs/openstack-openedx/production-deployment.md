@@ -2,8 +2,6 @@
 
 edX does not officially provide any supported method for deploying a production-grade instance of Open edX. However, the following *proposed* method for setting up a production-grade instance on OpenStack is available to the community, and recommended by OpenCraft. For context, this method of deployment is used in production for over 100 production instances of Open edX on [OpenCraft's hosting platform](http://opencraft.com/hosting/).
 
-To deploy to Amazon Web Services, see [AWS deployment](../aws-openedx/aws-deployment.md).
-
 ## Features of this Deployment Method
 With this method, you'll get an instance of Open edX that's ready to handle production traffic and which follows well-established best practices for deployments.
  

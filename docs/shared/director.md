@@ -58,7 +58,7 @@ This will install `ansible` among other depencencies.
 Upgrading `director`
 --------------------
 
-A new openedx release can include a newer version of `ansible`. Because ansible playbooks are to be run from `director`, we musto update the packages in `director`'s virtualenv. To do so:
+A new openedx release can include a newer version of `ansible` or other Python packages. Because ansible playbooks are to be run from `director`, we must update the packages in `director`'s virtualenv. To do so:
 
 ```bash
 workon edx-configuration
