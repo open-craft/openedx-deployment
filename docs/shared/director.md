@@ -4,6 +4,10 @@ Director Setup
 The `director` instance is used to run ansible playbooks in the
 [`edx/configuration`](https://github.com/edx/configuration) repo.
 
+When we [deploy an instance or an upgrade](../openstack-openedx/aws-deployment.md), we don't SSH directly into the server.
+Instead, we SSH to the `director`, and from `director` we SSH to the server we're deploying.
+This is done for security (the server only accepts SSH connections from `director`) and to offer us a stable environment with the right versions.
+
 Requirements
 ------------
 
@@ -49,3 +53,15 @@ make requirements
 ```
 
 This will install `ansible` among other depencencies.
+
+
+Upgrading `director`
+--------------------
+
+A new openedx release can include a newer version of `ansible` or other Python packages. Because ansible playbooks are to be run from `director`, we must update the packages in `director`'s virtualenv. To do so:
+
+```bash
+workon edx-configuration
+cd configuration
+make requirements
+```
