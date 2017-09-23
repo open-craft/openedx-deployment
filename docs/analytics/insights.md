@@ -130,7 +130,7 @@ sudo -Hu edxapp bash
 cd
 source edxapp_env
 cd edx-platform
-./manage.py lms --setting=aws create_oauth2_client \
+./manage.py lms --setting=$EDX_PLATFORM_SETTINGS create_oauth2_client \
     <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL> \
     <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL>/complete/edx-oidc/ \
     confidential --client_name insights \
