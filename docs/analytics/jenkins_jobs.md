@@ -129,7 +129,7 @@ cd $HOME
 TO_DATE=`date +%Y-%m-%d`
 analytics-configuration/automation/run-automated-task.sh ImportEnrollmentsIntoMysql \
     --local-scheduler \
-    --interval "2013-01-01-$TO_DATE" \
+    --interval "$START_DATE-$TO_DATE" \
     --n-reduce-tasks $NUM_REDUCE_TASKS
 ```
 
