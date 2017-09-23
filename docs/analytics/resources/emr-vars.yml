@@ -17,8 +17,8 @@ instance_groups:
     market: ON_DEMAND
 role: EMR_EC2_DefaultRole
 keypair_name: 'analytics'  # your analytics instance key pair name
-vpc_subnet_id: 'subnet-abcd1234'  # public subnet of the VPC
-log_uri: 's3://client-name-analytics-emr/logs'
+vpc_subnet_id: 'subnet-SET ME'  # public subnet of the VPC
+log_uri: "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/logs"
 release_label: 'emr-4.7.2'
 
 applications:
@@ -47,5 +47,7 @@ steps:
   - type: hive_install
   - type: script
     name: "Install Sqoop"
-    step_args: [ "s3://client-name-analytics-emr/install-sqoop", "s3://client-name-analytics-emr" ]
+    step_args:
+      - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/install-sqoop"
+      - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}"
     action_on_failure: TERMINATE_JOB_FLOW  # Set to CANCEL_AND_WAIT when debugging step failures.
