@@ -130,7 +130,7 @@ sudo -Hu edxapp bash
 cd
 source edxapp_env
 cd edx-platform
-./manage.py lms --setting=aws create_oauth2_client \
+./manage.py lms --setting=$EDX_PLATFORM_SETTINGS create_oauth2_client \
     <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL> \
     <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL>/complete/edx-oidc/ \
     confidential --client_name insights \
@@ -237,6 +237,27 @@ your `vars-analytics.yml`.
   NotFoundError: Resource http://127.0.0.1:8100/api/v0/course_summaries/ was not found on the API server.
   ```
   However, this only affects the home course list page.  The inner course-specific analytics pages will display fine.
+* Even after the `ImportEnrollmentsIntoMysql` task has run, the home page of Insights is still returning a 500 error,
+  and `/edx/var/log/insights/edx.log` shows something like:
+
+  ```bash
+  ClientError: Resource "course_summaries/" returned status code 500
+  ```
+
+  And `/edx/var/log/analytics-api/edx.log` shows something like:
+
+  ```bash
+  TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'
+  ```
+
+  This issue happens because the analytics pipeline creates tables and fields that the Analytics API accesses, but it
+  doesn't create them using the default values that the Analytics API expects.  This should be fixed properly in the
+  code someday, but to work around it, run this on the `reports` database:
+
+  ```sql
+  mysql> alter table course_meta_summary_enrollment alter passing_users set default 0;
+  mysql> update course_meta_summary_enrollment set passing_users=0 where passing_users is Null;
+  ```
 * There is no data in Insights - that's actually ok, we haven't run any pipeline tasks yet.
 
 Configure Insights

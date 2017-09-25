@@ -5,6 +5,7 @@ export PIP_VIRTUALENV_BASE=/home/jenkins/venvs
 export EXTRA_VARS="@/home/jenkins/emr-vars.yml"
 export WORKSPACE=/home/jenkins/workspace
 export CLUSTER_NAME="Client Name Analytics Cluster"
+export START_DATE="2013-01-01"
 export TASKS_REPO="https://github.com/x/edx-analytics-pipeline.git"
 export TASKS_BRANCH=x
 export TASK_USER=hadoop
