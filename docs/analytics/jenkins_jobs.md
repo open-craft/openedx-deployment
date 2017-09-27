@@ -333,7 +333,7 @@ analytics-configuration/automation/run-automated-task.sh ProblemResponseReportWo
     --local-scheduler \
     --marker $HADOOP_S3_BUCKET/intermediate/problem_response/marker`date +%s` \
     --interval-end "$TOMORROW" \
-    --hive-overwrite \
+    --overwrite \
     --n-reduce-tasks $NUM_REDUCE_TASKS
 ```
 
