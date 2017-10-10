@@ -117,6 +117,12 @@ analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkf
 
 In edx docs: [Enrollment](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#enrollment)
 
+### Bootstrap history task
+
+Before running the daily incremental enrollment task, below, you should first run the history task that loads historical enrollment events.
+
+In edx docs: [Enrollment History Task](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#history-task)
+
 Imports enrollments data; runs daily.
 
 Run on periodic build schedule, e.g. `H 6 * * *`.
@@ -136,6 +142,12 @@ analytics-configuration/automation/run-automated-task.sh ImportEnrollmentsIntoMy
 ## Enrollments By Country
 
 In edx docs: [Geography](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#geography)
+
+### Bootstrap history task
+
+Before running the daily incremental enrollment by country task, below, you should first run the history task that loads historical events.
+
+In edx docs: [Enrollments By Country History task](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id6)
 
 Enrollments by geolocation; runs daily.
 
