@@ -310,6 +310,7 @@ We commonly enable these features:
 * `display_names_for_course_index` (switch): shows the list of available courses as fetched from the Analytics API.
   Also requires the Analytics API.
 * `display_course_name_in_nav` (switch): shows course names instead of IDs in GUI.  Also requires the Analytics API.
+* `enable_engagement_videos_pages` (switch): shows the video engagement statistics page.
 * `display_learner_analytics` (flag): shows the Learner Analytics tab.  Requires the `ModuleEngagementWorkflowTask` to
   be run to populate the charts.
 * `enable_learner_download` (switch): shows a "Download CSV" button on the Learner Analytics page.  Requires the
