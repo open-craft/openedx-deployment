@@ -225,7 +225,7 @@ your `vars-analytics.yml`.
     ```bash
     sudo -u insights -Hs
     source ~/insights_env
-    cd ~/edx-analytics-dashboard
+    cd ~/edx_analytics_dashboard
     ./manage.py migrate --run-syncdb
     ```
 
