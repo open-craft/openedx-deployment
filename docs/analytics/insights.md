@@ -303,6 +303,7 @@ To list the current flags and switches, use the `--list` argument:
 ~/edx_analytics_dashboard/manage.py waffle_switch --list --settings=analytics_dashboard.settings.production
 ```
 
+See [Insights/README](https://github.com/edx/edx-analytics-dashboard#feature-gating) for a full list of flags/switches.
 We commonly enable these features:
 
 * `enable_course_api` (switch): allows course information to be fetched from the Analytics API.  Requires the Analytics
@@ -310,6 +311,7 @@ We commonly enable these features:
 * `display_names_for_course_index` (switch): shows the list of available courses as fetched from the Analytics API.
   Also requires the Analytics API.
 * `display_course_name_in_nav` (switch): shows course names instead of IDs in GUI.  Also requires the Analytics API.
+* `enable_engagement_videos_pages` (switch): shows video engagement page.  Also requires the Analytics API.
 * `display_learner_analytics` (flag): shows the Learner Analytics tab.  Requires the `ModuleEngagementWorkflowTask` to
   be run to populate the charts.
 * `enable_learner_download` (switch): shows a "Download CSV" button on the Learner Analytics page.  Requires the
