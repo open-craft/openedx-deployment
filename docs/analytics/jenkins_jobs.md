@@ -250,10 +250,9 @@ Run on periodic build schedule, e.g. `H 9 * * *`.
 export CLUSTER_NAME="InsertToMysqlAllVideoTask Cluster"
 cd $HOME
 
-FROM_DATE=2010-01-01
-TO_DATE=2030-01-01
+TO_DATE=`date +%Y-%m-%d`
 analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTask --local-scheduler \
-  --interval $(date +%Y-%m-%d -d "$FROM_DATE")-$(date +%Y-%m-%d -d "$TO_DATE") \
+  --interval "$START_DATE-$TO_DATE" \
   --n-reduce-tasks $NUM_REDUCE_TASKS
 ```
 
