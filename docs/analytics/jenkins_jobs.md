@@ -43,6 +43,12 @@ To create job, authenticate to Jenkins, than go to main page.
   For subsequent tasks, you can "Copy from existing item" instead, which saves a lot of steps.
 * `Project name`: set automatically from previous step
 * `Description`: provide appropriate description
+* `Discard Old Builds`: enable
+  `Strategy`: Log Rotation
+  `Days to keep builds`: (leave blank)
+  `Max # of builds to keep`: 50
+  `Advanced: Days to keep artifacts`: (leave blank)
+  `Advanced: Max # of builds to keep with artifacts`: 50
 * `Github project`: (leave blank)
 * `Job Notifications`: use section defaults
 * `Advanced Project Options`: use section defaults
