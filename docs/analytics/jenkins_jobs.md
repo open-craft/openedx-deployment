@@ -37,38 +37,52 @@ Configuring Jenkins job
 
 To create job, authenticate to Jenkins, than go to main page.
 
-* Click "New Item" in the left sidebar. Once you've created the first task, you can "Copy from existing item" instead, which saves a lot of steps.
+* Click "New Item" in the left sidebar.
 * Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
-* Select "Build a free-style software project"
-* You'll arrive at job configuration page. `Name` should be already set automatically. You might want to give task a description.
-* No modifications required in `Job Notifications` and `Advanced Project Options` sections.
-* `Source Code Management` - `None`
-* `Build Triggers` - `Build Periodically`. `H X * * *` should be good value for `Schedule field`, with X being an hour to run task (i.e. with X=19 task will run an 19:00 daily), `H` being Jenkins feature to spread the load; refer to Jenkins help should more need for a more sophisticated schedule arise.
-* `Build Environment` -> `Abort the build if it's stuck`: Enable this option. Set `Time-out strategy` to `Absolute`, `Timeout Minutes` to `300`. Then click `Add Action` and add a timeout action of `Fail the Build`.
-* `Build Environment` -> `SSH Agent` -> `Credentials` -> `Specific credentials`: This allows Jenkins to ssh to the
-  EMR servers via the shell command. Select the 'hadoop' ssh access key created by ansible. If the ssh credentials were not configured via ansible you can manually create a key here by clicking the
-  `Add Key` button.
-  * Kind: SSH username with private key
-  * Scope: Global
-  * Username: `hadoop`
-  * Private key: paste the analytics private key file contents directly, or copy the file to the analytics instance and point to the path.
-  * Passphrase: Leave empty for AWS-issued private key files.
-  * Description: ssh credential file
-* `Build` -> `Add Step` -> `Execute Shell`.
-* Fill in `Command` field with shell script to run. See [Commands](#commands) for details.
-* `Post build actions` -> `Add post build task` ->
-  * `Log text`: `Traceback`
-  * `Script`: `exit 1`
-  * `Run script only if all previous steps were successful`: `yes`
-  * `Escalate script execution status to job status`: `yes`
-* `Post build actions` -> `Add post build action` -> `Email Notification`
-  * `Recipients` - an alert email address, e.g. `ops@example.com`
-  * `Send e-mail for every unstable build`: `yes`
-  * `Send separate e-mails to individuals who broke the build`: `no`
+* If this is the first task created, select "Build a free-style software project"
+  For subsequent tasks, you can "Copy from existing item" instead, which saves a lot of steps.
+* `Project name`: set automatically from previous step
+* `Description`: provide appropriate description
+* `Github project`: (leave blank)
+* `Job Notifications`: use section defaults
+* `Advanced Project Options`: use section defaults
+* `Source Code Management`: `None`
+* `Build Triggers`: `Build Periodically`
+  `Schedule`: e.g., `H X * * *`, see [Commands](#commands) for suggested schedules.
+    * `X` is an hour to run task (i.e. with X=19 task will run an 19:00 daily),
+    * `H` being Jenkins feature to spread the load
+    * It makes sense to try to produce even load on the server by running tasks throughout the day, i.e. not put them
+      all to `0 0 * * *`, or even `H H * * *` (`H` is a hash, so it might put some tasks closely together).
+    * Refer to Jenkins help should more need for a more sophisticated schedule arise.
+* `Build Environment`
+    * `Abort the build if it's stuck`: enable
+      `Time-out strategy`: `Absolute`
+      `Timeout Minutes`: `300`
+    * Click `Add Action` and add `Fail the Build`.
+    * `SSH Agent`: enable
+      `Credentials`: `Specific credentials`: hadoop
+        This allows Jenkins to ssh to the EMR servers via the shell command.
+        Select the 'hadoop' ssh access key created by ansible.
+        If the ssh credentials were not configured via ansible you can manually create a key here by clicking the `Add Key` button.
+        * Kind: SSH username with private key
+        * Scope: Global
+        * Username: `hadoop`
+        * Private key: paste the analytics private key file contents directly, or copy the file to the analytics instance and point to the path.
+        * Passphrase: Leave empty for AWS-issued private key files.
+        * Description: ssh credential file
+* `Build`
+    * `Add Step` -> `Execute Shell`.
+        * Fill in `Command` field with shell script to run. See [Commands](#commands) for details.
+    * `Post build actions` -> `Add post build task`
+        * `Log text`: `Traceback`
+        * `Script`: `exit 1`
+        * `Run script only if all previous steps were successful`: `yes`
+        * `Escalate script execution status to job status`: `yes`
+    * `Post build actions` -> `Add post build action` -> `Email Notification`
+        * `Recipients` - an alert email address, e.g. `ops@example.com`
+        * `Send e-mail for every unstable build`: `yes`
+        * `Send separate e-mails to individuals who broke the build`: `no`
 * Finally, click `Save`
-
-It makes sense to try to produce even load on the server by running tasks throughout the day, i.e. not put them all to
-`0 0 * * *`, or even `H H * * *` (`H` is a hash, so it might put some tasks closely together).
 
 # Commands
 
