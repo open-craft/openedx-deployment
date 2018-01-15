@@ -12,8 +12,8 @@ instance_groups:
     type: m4.large
     market: ON_DEMAND
   task:
-    num_instances: 2
-    type: m4.large
+    num_instances: "{{ lookup('env', 'TASK_INSTANCE_NUM')|default(2, true)|int }}"
+    type: "{{ lookup('env', 'TASK_INSTANCE_TYPE')|default('m4.large', true) }}"
     market: ON_DEMAND
 role: EMR_EC2_DefaultRole
 keypair_name: 'analytics'  # your analytics instance key pair name
