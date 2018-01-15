@@ -103,9 +103,7 @@ body, and list the environment variables in the actual shell command inline.
 
 In edx docs: [Performance (graded and ungraded)](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#performance-graded-and-ungraded)
 
-Runs nightly.
-
-Run on periodic build schedule, e.g. `H 0 * * *`.
+Run on periodic build schedule, e.g. `H 7 * * *`.
 
 NB: The AnswerDistributionWorkflow task is one of the oldest analytics tasks, and not as cleanly configured as the other
 tasks.  The `--dest`, `--manifest`, and `--marker` parameters must used a timestamped directory, to ensure fresh data
@@ -145,7 +143,7 @@ In edx docs: [Enrollment History Task](http://edx-analytics-pipeline-reference.r
 
 Imports enrollments data; runs daily.
 
-Run on periodic build schedule, e.g. `H 6 * * *`.
+Run on periodic build schedule, e.g. `H 0 * * *`.
 
 ```bash
 . /home/jenkins/jenkins_env
@@ -171,7 +169,7 @@ In edx docs: [Enrollments By Country History task](http://edx-analytics-pipeline
 
 Enrollments by geolocation; runs daily.
 
-Run on periodic build schedule, e.g. `H 12 * * *`.
+Run on periodic build schedule, e.g. `H 5 * * *`.
 
 ```bash
 . /home/jenkins/jenkins_env
@@ -191,7 +189,7 @@ In edx docs: [Engagement](http://edx-analytics-pipeline-reference.readthedocs.io
 
 Weekly course activity; runs every Monday.
 
-Run on periodic build schedule, e.g. `H 3 * * 1`.
+Run on periodic build schedule, e.g. `H 1 * * 1`.
 
 ```bash
 . /home/jenkins/jenkins_env
@@ -241,7 +239,7 @@ In edx docs: [ModuleEngagementWorkflowTask](http://edx-analytics-pipeline-refere
 
 Weekly course module engagement data stored in an ElasticSearch index; runs daily.
 
-Run on periodic build schedule, e.g. `H 15 * * *`.
+Run on periodic build schedule, e.g. `H 3 * * *`.
 
 Note: HKS epodX wanted theirs to run every 2 hours, so for them we use: `H */2 * * *`,
 
@@ -282,7 +280,7 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTa
 
 In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
 
-Run on a daily build schedule, e.g. `H 19 * * *`.
+Run on a daily build schedule, e.g. `H 11 * * *`.
 
 Run this task only if your client requires daily Student Engagement reports.
 
@@ -305,7 +303,7 @@ analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFil
 
 In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
 
-Run on a weekly build schedule, e.g. `H 21 * * 1`.
+Run on a weekly build schedule, e.g. `H 13 * * 1`.
 
 Run this task only if your client requires weekly Student Engagement reports.
 
