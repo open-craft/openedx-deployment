@@ -40,40 +40,48 @@ To create job, authenticate to Jenkins, than go to main page.
 * Click "New Item" in the left sidebar.
 * Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
 * If this is the first task created, select "Build a free-style software project"
+
   For subsequent tasks, you can "Copy from existing item" instead, which saves a lot of steps.
 * `Project name`: set automatically from previous step
 * `Description`: provide appropriate description
 * `Discard Old Builds`: enable
-  `Strategy`: Log Rotation
-  `Days to keep builds`: (leave blank)
-  `Max # of builds to keep`: 50
-  `Advanced: Days to keep artifacts`: (leave blank)
-  `Advanced: Max # of builds to keep with artifacts`: 50
+  * `Strategy`: Log Rotation
+  * `Days to keep builds`: (leave blank)
+  * `Max # of builds to keep`: 50
+  * `Advanced: Days to keep artifacts`: (leave blank)
+  * `Advanced: Max # of builds to keep with artifacts`: 50
 * `Github project`: (leave blank)
 * `Job Notifications`: use section defaults
 * `Advanced Project Options`: use section defaults
 * `Source Code Management`: `None`
 * `Build Triggers`: `Build Periodically`
-  `Schedule`: e.g., `H X * * *`, see [Commands](#commands) for suggested schedules.
-    * `X` is an hour to run task (i.e. with X=19 task will run an 19:00 daily),
-    * `H` being Jenkins feature to spread the load
-    * It makes sense to try to produce even load on the server by running tasks throughout the day, i.e. not put them
-      all to `0 0 * * *`, or even `H H * * *` (`H` is a hash, so it might put some tasks closely together).
-    * Refer to Jenkins help should more need for a more sophisticated schedule arise.
+  * `Schedule`: e.g., `H X * * *`, see [Commands](#commands) for suggested schedules.
+    * `X` is an hour to run task (i.e. with X=19 task will run at 19:00 daily)
+    * `H` is a Jenkins hash used to spread the load.
+
+    It makes sense to try to reduce even load on the server by running tasks throughout the day, i.e. not put them all
+    to `0 0 * * *`, or even `H H * * *` (`H` is a hash, so it might put some tasks closely together).
+
+    Refer to Jenkins help should the need for a more sophisticated schedule arise.
 * `Build Environment`
     * `Abort the build if it's stuck`: enable
-      `Time-out strategy`: `Absolute`
-      `Timeout Minutes`: `300`
-    * Click `Add Action` and add `Fail the Build`.
+        * `Time-out strategy`: `Absolute`
+        * `Timeout Minutes`: `300`
+        * Click `Add Action` and add `Fail the Build`.
     * `SSH Agent`: enable
-      `Credentials`: `Specific credentials`: hadoop
-        This allows Jenkins to ssh to the EMR servers via the shell command.
-        Select the 'hadoop' ssh access key created by ansible.
-        If the ssh credentials were not configured via ansible you can manually create a key here by clicking the `Add Key` button.
+      * `Credentials`: `Specific credentials`: hadoop
+
+      This allows Jenkins to ssh to the EMR servers via the shell command.
+
+      Select the 'hadoop' ssh access key created by ansible.
+
+      If the ssh credentials were not configured via ansible you can manually create a key here by clicking       the `Add Key` button.
+
         * Kind: SSH username with private key
         * Scope: Global
         * Username: `hadoop`
-        * Private key: paste the analytics private key file contents directly, or copy the file to the analytics instance and point to the path.
+        * Private key: paste the analytics private key file contents directly, or copy the file to the analytics
+          instance and point to the path.
         * Passphrase: Leave empty for AWS-issued private key files.
         * Description: ssh credential file
 * `Build`
