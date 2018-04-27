@@ -32,16 +32,26 @@ Also note that if you're going to have Jenkins tasks running in parallel, they s
 `CLUSTER_NAME` values](jenkins.md#cluster_name) so they don't terminate EMR clusters out from under one another.  See
 the sample task configurations for examples of `CLUSTER_NAME` values.
 
-Configuring Jenkins job
------------------------
+Configuring Jenkins jobs
+------------------------
+
+To add a new Jenkins job, you can:
+
+* [Create the job from scratch](#create-new-jenkins-job).
+* [Clone an existing job](#clone-existing-jenkins-job) and modify it.
+* [Import an old job's config.xml](#import-jenkins-job-configxml).
+
+Create new Jenkins job
+----------------------
 
 To create job, authenticate to Jenkins, than go to main page.
 
 * Click "New Item" in the left sidebar.
 * Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
 * If this is the first task created, select "Build a free-style software project"
+  For subsequent tasks, you can [Copy from existing item](#clone-existing-jenkins-job) instead, which saves a lot of
+  steps.
 
-  For subsequent tasks, you can "Copy from existing item" instead, which saves a lot of steps.
 * `Project name`: set automatically from previous step
 * `Description`: provide appropriate description
 * `Discard Old Builds`: enable
@@ -97,6 +107,42 @@ To create job, authenticate to Jenkins, than go to main page.
         * `Send e-mail for every unstable build`: `yes`
         * `Send separate e-mails to individuals who broke the build`: `no`
 * Finally, click `Save`
+
+Clone existing Jenkins job
+--------------------------
+
+Once you have a [Jenkins job created](#create-new-jenkins-job), you can clone it into a new job and modify it.
+
+To do this:
+
+* Click "New Item" in the left sidebar.
+* Set the task name to be the insights domain, followed by a recognizable name that uniquely identifies the task (e.g. "insights.example.com Module Engagement"). Having the insights domain prepended to the task name will help recipients of the error emails to quickly identify the source analytics instance of any future task failure alerts.
+* Select "Copy from existing item" and select the existing task to clone from.
+* Click "Ok" to create the cloned item.
+* Modify the settings that differ (e.g. name, description, schedule crontab, command), and "Save".
+
+Import Jenkins job config.xml
+-----------------------------
+
+To perform this step reliably, you must be running with the same (or similar) version of Jenkins that the `config.xml`
+file was created with, otherwise strange problems may arise (cf https://stackoverflow.com/q/8424228/4302112).
+
+For example, to get a job's `config.xml`:
+
+```bash
+curl -X GET \
+     -o AnalyticsTaskName_config.xml \
+     'http://orig.jenkins.url/job/insights.example.com%20AnalyticsTaskName/config.xml'
+```
+
+To import a `config.xml` file:
+
+```bash
+cat AnalyticsTaskName_config.xml | curl -X POST \
+     --header "Content-Type: application/xml" \
+     --data-binary @- \
+     'http://new.jenkins.url/createItem?name=insights.example.com%20AnalyticsTaskName'
+```
 
 # Commands
 
