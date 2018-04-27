@@ -131,14 +131,14 @@ For example, to get a job's `config.xml`:
 
 ```bash
 curl -X GET \
-     -o config.xml \
+     -o AnalyticsTaskName_config.xml \
      'http://orig.jenkins.url/job/insights.example.com%20AnalyticsTaskName/config.xml'
 ```
 
 To import a `config.xml` file:
 
 ```bash
-cat config.xml | curl -X POST \
+cat AnalyticsTaskName_config.xml | curl -X POST \
      --header "Content-Type: application/xml" \
      --data-binary @- \
      'http://new.jenkins.url/createItem?name=insights.example.com%20AnalyticsTaskName'
