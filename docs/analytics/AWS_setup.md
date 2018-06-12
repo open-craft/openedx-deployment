@@ -100,7 +100,7 @@ We will create an IAM role for the `analytics` EC2 instance, to give it permissi
 * Select the policy you created above (eg. `provision_emr_clusters`)
 * Hit "Create Role" on final step
 
-### ElasticSearch User
+### ElasticSearch User and Role
 
 The analytics API needs to be able to read indexes from the AWS ElasticSearch instance.
 
@@ -113,6 +113,30 @@ The analytics API needs to be able to read indexes from the AWS ElasticSearch in
   * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
       `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
 * Note the user's ARN code for use when the [ElasticSearch service](#elasticsearch) is created.
+
+The EMR EC2 Instances need to be able to write to the ElasticSearch index
+
+* Go to `IAM -> Policies -> Create Policy`
+* Select "Create Your Own Policy"
+* Give it a recognizable name (eg. `elasticsearch_all`)
+* Paste this into "Policy Body" and click "Create":
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Resource": "*",
+            "Action": [
+                "es:*"
+            ]
+        }
+    ]
+}
+```
+
+
 
 ### VPC DNS hostname
 
