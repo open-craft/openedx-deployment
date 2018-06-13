@@ -153,6 +153,8 @@ discussion of these environment variables.
 One can do without a `jenkins_env` file by omitting the `. /home/jenkins/jenkins_env` command from the shell script
 body, and list the environment variables in the actual shell command inline.
 
+Note that the build schedules can and should be adjusted as needed. Depending on the number and size of tracking logs, different jobs can take a differing amount of time. Some jobs can conflict while editing the s3 buckets, causing failures due to race conditions. If this kind of contention occurs, changing the schedule for jobs is perfectly fine and can often fix the problem.
+
 ## Answer Distribution
 
 In edx docs: [Performance (graded and ungraded)](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#performance-graded-and-ungraded)
