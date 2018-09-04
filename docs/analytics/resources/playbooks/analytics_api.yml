@@ -19,8 +19,8 @@
   roles:
     - aws
     - security
-    - mysql
-    - edxlocal
+    - common_vars
+    - nginx
     - analytics_api
     - role: nginx
       nginx_sites:

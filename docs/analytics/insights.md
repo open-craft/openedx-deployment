@@ -21,6 +21,9 @@ If you are splitting these services across multiple EC2 instances, then you'll n
 [`analytics_insights.yml`](resources/playbooks/analytics_insights.yml) and
 [`analytics_api.yml`](resources/playbooks/analytics_api.yml).
 
+If you're planning to expose the `analytics_api` via nginx, you'll also need this
+[analytics_api.j2](resources/playbooks/roles/nginx/templates/edx/app/nginx/sites-available/analytics_api.j2)
+
 Ensure that your playbook(s) are located on your [director instance](../shared/director.md) under `configuration/playbooks`.
 
 Variables and SSH Keys
