@@ -229,11 +229,11 @@ Run on periodic build schedule, e.g. `H 5 * * *`.
 
 ```bash
 . /home/jenkins/jenkins_env
-export CLUSTER_NAME="InsertToMysqlCourseEnrollByCountryWorkflow Cluster"
+export CLUSTER_NAME="InsertToMysqlLastCountryPerCourseTask Cluster"
 cd $HOME
 
 NOW=`date +%s`
-analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseEnrollByCountryWorkflow \
+analytics-configuration/automation/run-automated-task.sh InsertToMysqlLastCountryPerCourseTask \
     --local-scheduler \
     --n-reduce-tasks $NUM_REDUCE_TASKS \
     --overwrite
