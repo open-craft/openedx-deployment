@@ -175,14 +175,14 @@ ANSWER_DIST_S3_BUCKET=$HADOOP_S3_BUCKET/intermediate/answer_dist/$NOW
 
 analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkflow \
     --local-scheduler \
-    --src $TRACKING_LOGS_S3_BUCKET/logs/tracking \
+    --src "'[\"$TRACKING_LOGS_S3_BUCKET/logs/tracking\"]'" \
     --dest "$ANSWER_DIST_S3_BUCKET" \
     --name AnswerDistributionWorkflow \
     --output-root $HADOOP_S3_BUCKET/grading_reports/ \
-    --include '*tracking.log*.gz' \
+    --include "'[\"*tracking.log*.gz\"]'" \
     --manifest "$ANSWER_DIST_S3_BUCKET/manifest.txt" \
     --base-input-format "org.edx.hadoop.input.ManifestTextInputFormat" \
-    --lib-jar "$TASK_CONFIGURATION_S3_BUCKET/edx-analytics-hadoop-util.jar" \
+    --lib-jar "'[\"$TASK_CONFIGURATION_S3_BUCKET/edx-analytics-hadoop-util.jar\"]'" \
     --n-reduce-tasks $NUM_REDUCE_TASKS \
     --marker "$ANSWER_DIST_S3_BUCKET/marker"
 ```
