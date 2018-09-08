@@ -239,6 +239,23 @@ analytics-configuration/automation/run-automated-task.sh InsertToMysqlLastCountr
     --overwrite
 ```
 
+## Course Activity -- bootstrap task
+
+In edx docs: [Engagement](https://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id6)
+
+Run once to initialize the data set for the `InsertToMysqlCourseActivityTask` incremental task.
+
+```bash
+. /home/jenkins/jenkins_env
+export CLUSTER_NAME="LastDailyIpAddressOfUserTask Cluster"
+cd $HOME
+
+FROM_DATE=2015-01-01
+analytics-configuration/automation/run-automated-task.sh LastDailyIpAddressOfUserTask --local-scheduler \
+  --interval $(date +%Y-%m-%d -d "$FROM_DATE")-$(date +%Y-%m-%d -d "$TO_DATE") \
+  --n-reduce-tasks $NUM_REDUCE_TASKS
+```
+
 ## Course Activity
 
 In edx docs: [Engagement](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#engagement)
@@ -249,11 +266,11 @@ Run on periodic build schedule, e.g. `H 1 * * 1`.
 
 ```bash
 . /home/jenkins/jenkins_env
-export CLUSTER_NAME="CourseActivityWeeklyTask Cluster"
+export CLUSTER_NAME="InsertToMysqlCourseActivityTask Cluster"
 cd $HOME
 
 TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh CourseActivityWeeklyTask \
+analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseActivityTask \
     --local-scheduler \
     --end-date $TO_DATE \
     --weeks 24 \
