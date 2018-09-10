@@ -175,14 +175,14 @@ ANSWER_DIST_S3_BUCKET=$HADOOP_S3_BUCKET/intermediate/answer_dist/$NOW
 
 analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkflow \
     --local-scheduler \
-    --src $TRACKING_LOGS_S3_BUCKET/logs/tracking \
+    --src "'[\"$TRACKING_LOGS_S3_BUCKET/logs/tracking\"]'" \
     --dest "$ANSWER_DIST_S3_BUCKET" \
     --name AnswerDistributionWorkflow \
     --output-root $HADOOP_S3_BUCKET/grading_reports/ \
-    --include '*tracking.log*.gz' \
+    --include "'[\"*tracking.log*.gz\"]'" \
     --manifest "$ANSWER_DIST_S3_BUCKET/manifest.txt" \
     --base-input-format "org.edx.hadoop.input.ManifestTextInputFormat" \
-    --lib-jar "$TASK_CONFIGURATION_S3_BUCKET/edx-analytics-hadoop-util.jar" \
+    --lib-jar "'[\"$TASK_CONFIGURATION_S3_BUCKET/edx-analytics-hadoop-util.jar\"]'" \
     --n-reduce-tasks $NUM_REDUCE_TASKS \
     --marker "$ANSWER_DIST_S3_BUCKET/marker"
 ```
@@ -229,14 +229,31 @@ Run on periodic build schedule, e.g. `H 5 * * *`.
 
 ```bash
 . /home/jenkins/jenkins_env
-export CLUSTER_NAME="InsertToMysqlCourseEnrollByCountryWorkflow Cluster"
+export CLUSTER_NAME="InsertToMysqlLastCountryPerCourseTask Cluster"
 cd $HOME
 
 NOW=`date +%s`
-analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseEnrollByCountryWorkflow \
+analytics-configuration/automation/run-automated-task.sh InsertToMysqlLastCountryPerCourseTask \
     --local-scheduler \
     --n-reduce-tasks $NUM_REDUCE_TASKS \
     --overwrite
+```
+
+## Course Activity -- bootstrap task
+
+In edx docs: [Engagement](https://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id6)
+
+Run once to initialize the data set for the `InsertToMysqlCourseActivityTask` incremental task.
+
+```bash
+. /home/jenkins/jenkins_env
+export CLUSTER_NAME="LastDailyIpAddressOfUserTask Cluster"
+cd $HOME
+
+FROM_DATE=2015-01-01
+analytics-configuration/automation/run-automated-task.sh LastDailyIpAddressOfUserTask --local-scheduler \
+  --interval $(date +%Y-%m-%d -d "$FROM_DATE")-$(date +%Y-%m-%d -d "$TO_DATE") \
+  --n-reduce-tasks $NUM_REDUCE_TASKS
 ```
 
 ## Course Activity
@@ -249,11 +266,11 @@ Run on periodic build schedule, e.g. `H 1 * * 1`.
 
 ```bash
 . /home/jenkins/jenkins_env
-export CLUSTER_NAME="CourseActivityWeeklyTask Cluster"
+export CLUSTER_NAME="InsertToMysqlCourseActivityTask Cluster"
 cd $HOME
 
 TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh CourseActivityWeeklyTask \
+analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseActivityTask \
     --local-scheduler \
     --end-date $TO_DATE \
     --weeks 24 \

@@ -19,12 +19,11 @@
   roles:
     - aws
     - security
-    - mysql
-    - edxlocal
-    - analytics_api
+    - common_vars
     - role: nginx
       nginx_sites:
         - insights
+    - analytics_api
     - insights
     - role: postfix_queue
       when: POSTFIX_QUEUE_EXTERNAL_SMTP_HOST != ''
