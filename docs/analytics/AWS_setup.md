@@ -86,6 +86,7 @@ We will create an IAM role for the `analytics` EC2 instance, to give it permissi
               "iam:PassRole",
               "route53:Get*",
               "route53:List*",
+              "s3:*",
               "ec2:DescribeInstances",
               "rds:DescribeDBInstances"
           ]
