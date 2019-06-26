@@ -13,16 +13,10 @@ cd configuration/playbooks
 Playbooks
 ---------
 
-Create an ansible playbook to deploy Insights and the Analytics API using [`edx/configuration`
-roles](https://github.com/edx/configuration/playbooks/roles).  See
-[`analytics_sandbox.yml`](resources/playbooks/analytics_sandbox.yml) for an example playbook.
-
-If you are splitting these services across multiple EC2 instances, then you'll need two playbooks, e.g.
-[`analytics_insights.yml`](resources/playbooks/analytics_insights.yml) and
-[`analytics_api.yml`](resources/playbooks/analytics_api.yml).
-
-If you're planning to expose the `analytics_api` via nginx, you'll also need this
-[analytics_api.j2](resources/playbooks/roles/nginx/templates/edx/app/nginx/sites-available/analytics_api.j2)
+Deploy Insights and the Analytics API using the using [`edx/configuration`
+roles](https://github.com/edx/configuration/tree/master/playbooks/roles).  See
+[`analytics_single.yml`](https://github.com/edx/configuration/tree/master/playbooks/analytics_single.yml) for an example
+playbook. 
 
 Ensure that your playbook(s) are located on your [director instance](../shared/director.md) under `configuration/playbooks`.
 
