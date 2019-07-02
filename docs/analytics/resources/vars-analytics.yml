@@ -11,6 +11,10 @@ COMMON_MYSQL_MIGRATE_PASS: 'x'
 
 OPENEDX_RELEASE: 'master' # For stability, choose a specific release, e.g. open-release/ficus.3
 COMMON_GIT_PATH: 'edx'  # change if using your own forks
+COMMON_SECURITY_UPDATES: true
+SANDBOX_ENABLE_ANALYTICS_PIPELINE: false
+SANDBOX_ENABLE_ANALYTICS_API: true
+SANDBOX_ENABLE_INSIGHTS: true
 # end common variables
 
 # S3 tracking logs
