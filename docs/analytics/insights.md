@@ -16,7 +16,7 @@ Playbooks
 Deploy Insights and the Analytics API using the using [`edx/configuration`
 roles](https://github.com/edx/configuration/tree/master/playbooks/roles).  See
 [`analytics_single.yml`](https://github.com/edx/configuration/tree/master/playbooks/analytics_single.yml) for an example
-playbook. 
+playbook and see [`vars-analytics.yml`](resources/vars-analytics.yml) for example variables to use with this playbook.
 
 Ensure that your playbook(s) are located on your [director instance](../shared/director.md) under `configuration/playbooks`.
 
