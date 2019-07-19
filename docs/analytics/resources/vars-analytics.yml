@@ -1,4 +1,16 @@
 ---
+# Playbook: analytics_single.yml
+
+# Enable/disable these two variables as needed to split these services across different instances.
+SANDBOX_ENABLE_ANALYTICS_API: true
+SANDBOX_ENABLE_INSIGHTS: true
+
+# The analytics_pipeline role is enabled by default by the analytics_single.yml playbook, but throws errors if mysql
+# is not run locally (which it should never be in production).
+# So we don't install the pipeline on the analytics server itself. Instead, we install jenkins_analytics, which will
+# scheduled jobs that install the analytics pipeline on EMR instances using a different ansible role.
+SANDBOX_ENABLE_ANALYTICS_PIPELINE: false
+
 # Common variables - keep synced with vars.yml
 EDXAPP_LMS_BASE_SCHEME: 'x'
 EDXAPP_LMS_BASE: 'x'   # in vars it might be set to {{ LMS_SITE_NAME }} - in such case either copy LMS_SITE_NAME here
@@ -11,6 +23,7 @@ COMMON_MYSQL_MIGRATE_PASS: 'x'
 
 OPENEDX_RELEASE: 'master' # For stability, choose a specific release, e.g. open-release/ficus.3
 COMMON_GIT_PATH: 'edx'  # change if using your own forks
+COMMON_SECURITY_UPDATES: true
 # end common variables
 
 # S3 tracking logs
