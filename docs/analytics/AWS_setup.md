@@ -47,6 +47,58 @@ deployment.  The files and their expected contents are discussed in subsequent s
 AWS Resources
 =============
 
+The following guide can be replaced if you use the Terraform with the [terraform-scripts module](https://github.com/open-craft/terraform-scripts/tree/main/modules/services/elasticsearch).
+You'll also need some other modules, your project should look something like this:
+
+    module "analytics" {
+      source = "git@github.com:open-craft/terraform-scripts.git//modules/services/analytics?ref=..."
+      analytics_image_id = local.analytics_image_id
+      analytics_instance_type = local.analytics_instance_type
+      analytics_key_pair_name = local.analytics_key_pair_name
+      customer_name = local.customer_name
+      director_security_group_id = local.director_security_group_id
+      
+      edxapp_s3_grade_bucket_id = "..."
+      edxapp_s3_grade_bucket_arn = "..."
+      edxapp_s3_grade_user_arn = "..."
+      environment = local.environment
+      hosted_zone_domain = local.hosted_zone_domain
+    
+      instance_iteration = local.instance_iteration
+    }
+
+    module "elasticsearch" {
+      source = "git@github.com:open-craft/terraform-scripts.git//modules/services/elasticsearch?ref=..."
+      customer_name = local.customer_name
+      edxapp_security_group_id = module.analytics.analytics_security_group_id
+      environment = local.environment
+    
+      number_of_nodes = 1
+      instance_count = 1
+      dedicated_master_enabled = false
+      zone_awareness_enabled = false
+      create_iam_service_linked_role = false
+    }
+    
+    module "sql" {
+      source = "git@github.com:open-craft/terraform-scripts.git//modules/services/sql?ref=..."
+    
+      customer_name = local.customer_name
+      environment = local.environment
+      instance_class = ...
+      edxapp_security_group_id = module.analytics.analytics_security_group_id
+      allocated_storage = 5
+      database_root_password = local.analytics_mysql_root_password
+      database_root_username = local.analytics_mysql_root_username
+    
+      extra_security_group_ids = [module.analytics.emr_rds_security_group_id]
+    }
+
+If you used Terraform, you can go directly to the [Insights section](#insightsanalytics-api-setup), if not continue 
+with this guide.
+
+**Manual AWS Creation:**
+
 We will create the following AWS resources in this setup:
 
 * One [EC2 instance](#ec2) for hosting Insights (analytics dashboard), the Analytics API, and Jenkins (analytics
