@@ -67,19 +67,6 @@ You'll also need some other modules, your project should look something like thi
       instance_iteration = local.instance_iteration
     }
 
-    module "elasticsearch" {
-      source = "git@github.com:open-craft/terraform-scripts.git//modules/services/elasticsearch?ref=..."
-      customer_name = local.customer_name
-      edxapp_security_group_id = module.analytics.analytics_security_group_id
-      environment = local.environment
-    
-      number_of_nodes = 1
-      instance_count = 1
-      dedicated_master_enabled = false
-      zone_awareness_enabled = false
-      create_iam_service_linked_role = false
-    }
-    
     module "sql" {
       source = "git@github.com:open-craft/terraform-scripts.git//modules/services/sql?ref=..."
     
