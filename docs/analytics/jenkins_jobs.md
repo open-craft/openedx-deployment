@@ -155,9 +155,71 @@ body, and list the environment variables in the actual shell command inline.
 
 Note that the build schedules can and should be adjusted as needed. Depending on the number and size of tracking logs, different jobs can take a differing amount of time. Some jobs can conflict while editing the s3 buckets, causing failures due to race conditions. If this kind of contention occurs, changing the schedule for jobs is perfectly fine and can often fix the problem.
 
-## Answer Distribution
+These tasks should be configured, referencing the [Open edX Analytics Pipeline Reference](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html) for the specific commands.
 
-In edx docs: [Performance (graded and ungraded)](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#performance-graded-and-ungraded)
+## Command template
+
+All tasks except the [Performance](#performance) and [Problem response report](#problem-response-report) tasks are
+"incremental" tasks. This means that after running a bootstrap "historical" task to ingest the historical data, you can
+run a quicker daily (or weekly) incremental task to process new incoming data.
+
+You'll need to run the [Enrollment](#enrollment) tasks first, as this populates data used by most of the other tasks.
+
+Here's a command template for running these tasks, where:
+
+* The common variables are defined in the installed [`/home/jenkins/jenkins_env`](resources/jenkins_env) file.
+* `CLUSTER_NAME` is defind below and unique for each task, so tasks can run in parallel if scheduled to.
+* The task command and arguments are as shown in the [docs](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html). 
+
+```
+. /home/jenkins/jenkins_env
+export CLUSTER_NAME="<Unique Name> Cluster"
+cd $HOME
+
+FROM_DATE="$START_DATE"
+TO_DATE=`date +%Y-%m-%d`
+analytics-configuration/automation/run-automated-task.sh <task command and arguments>
+```
+
+## Enrollments
+
+Imports enrollments data; runs daily.
+
+See edx docs: [Enrollment](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#enrollment)
+
+Run on periodic build schedule, e.g. `H 0 * * *`.
+
+## Enrollments By Country
+
+Enrollments by geolocation; runs daily.
+
+See edx docs: [Geography](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#geography)
+
+Run on periodic build schedule, e.g. `H 5 * * *`.
+
+## Engagement
+
+Weekly course activity; run weekly.
+
+See edx docs: [Engagement](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#engagement)
+
+Run on periodic build schedule, e.g. `H 1 * * 1`.
+
+## Learner engagement
+
+Weekly course module engagement data stored in an ElasticSearch index; runs daily.
+
+See edx docs: [Learner analytics](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#learner-analytics)
+
+Run on periodic build schedule, e.g. `H 3 * * *`.
+
+Note: HKS epodX wanted theirs updated every 2 hours, so for them we used: `H */2 * * *`,
+
+## Performance
+
+Loads learner data for graded and ungraded problems.
+
+See edx docs: [Performance (graded and ungraded)](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#performance-graded-and-ungraded)
 
 Run on periodic build schedule, e.g. `H 7 * * *`.
 
@@ -165,9 +227,11 @@ NB: The AnswerDistributionWorkflow task is one of the oldest analytics tasks, an
 tasks.  The `--dest`, `--manifest`, and `--marker` parameters must used a timestamped directory, to ensure fresh data
 for each run of the task.
 
+Here's an example of how to run this task using the sample [jenkins_env](resources/jenkins_env) provided.
+
 ```bash
 . /home/jenkins/jenkins_env
-export CLUSTER_NAME="AnswerDistributionWorkflow Cluster"
+export CLUSTER_NAME="Performance Cluster"
 cd $HOME
 
 NOW=`date +%s`
@@ -187,226 +251,39 @@ analytics-configuration/automation/run-automated-task.sh AnswerDistributionWorkf
     --marker "$ANSWER_DIST_S3_BUCKET/marker"
 ```
 
-## Enrollments Total, Enrollments by Gender, Age, Education
-
-In edx docs: [Enrollment](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#enrollment)
-
-### Bootstrap history task
-
-Before running the daily incremental enrollment task, below, you should first run the history task that loads historical enrollment events.
-
-In edx docs: [Enrollment History Task](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#history-task)
-
-Imports enrollments data; runs daily.
-
-Run on periodic build schedule, e.g. `H 0 * * *`.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="ImportEnrollmentsIntoMysql Cluster"
-cd $HOME
-
-TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh ImportEnrollmentsIntoMysql \
-    --local-scheduler \
-    --interval "$START_DATE-$TO_DATE" \
-    --n-reduce-tasks $NUM_REDUCE_TASKS
-```
-
-## Enrollments By Country
-
-In edx docs: [Geography](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#geography)
-
-### Bootstrap history task
-
-Before running the daily incremental enrollment by country task, below, you should first run the history task that loads historical events.
-
-In edx docs: [Enrollments By Country History task](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id6)
-
-Enrollments by geolocation; runs daily.
-
-Run on periodic build schedule, e.g. `H 5 * * *`.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="InsertToMysqlLastCountryPerCourseTask Cluster"
-cd $HOME
-
-NOW=`date +%s`
-analytics-configuration/automation/run-automated-task.sh InsertToMysqlLastCountryPerCourseTask \
-    --local-scheduler \
-    --n-reduce-tasks $NUM_REDUCE_TASKS \
-    --overwrite
-```
-
-## Course Activity -- bootstrap task
-
-In edx docs: [Engagement](https://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id6)
-
-Run once to initialize the data set for the `InsertToMysqlCourseActivityTask` incremental task.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="LastDailyIpAddressOfUserTask Cluster"
-cd $HOME
-
-FROM_DATE=2015-01-01
-analytics-configuration/automation/run-automated-task.sh LastDailyIpAddressOfUserTask --local-scheduler \
-  --interval $(date +%Y-%m-%d -d "$FROM_DATE")-$(date +%Y-%m-%d -d "$TO_DATE") \
-  --n-reduce-tasks $NUM_REDUCE_TASKS
-```
-
-## Course Activity
-
-In edx docs: [Engagement](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#engagement)
-
-Weekly course activity; runs every Monday.
-
-Run on periodic build schedule, e.g. `H 1 * * 1`.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="InsertToMysqlCourseActivityTask Cluster"
-cd $HOME
-
-TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh InsertToMysqlCourseActivityTask \
-    --local-scheduler \
-    --end-date $TO_DATE \
-    --weeks 24 \
-    --n-reduce-tasks $NUM_REDUCE_TASKS
-```
-
-## Module Engagement - bootstrap task
-
-In edx docs: [Learner analytics](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#learner-analytics)
-
-The primary entry point `ModuleEngagementWorkflowTask` is run daily and updates the elasticsearch index and MySQL
-database with the aggregates computed from the last 7 days of activity.
-
-Before scheduling `ModuleEngagementWorkflowTask`, we run `ModuleEngagementIntervalTask` once to populate the historical
-data in the `module_engagement` table in MySQL. This table is updated incrementally every night (by the primary entry
-point), however, it needs to be bootstrapped when you first start running the system with a bunch of historical data.
-
-Do not run on a periodic build schedule; run manually once when deploying analytics for a client with historical
-tracking data.  Beware that this task can take several hours to complete, so choose a conservative `FROM_DATE`.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="ModuleEngagementInterval Cluster"
-cd $HOME
-
-FROM_DATE=2016-01-01  # choose an early date from existing tracking logs
-TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh ModuleEngagementIntervalTask \
-    --local-scheduler \
-    --interval $FROM_DATE-$TO_DATE \
-    --overwrite-from-date $TO_DATE \
-    --overwrite-mysql \
-    --n-reduce-tasks $NUM_REDUCE_TASKS
-```
-
-## Module Engagement
-
-In edx docs: [ModuleEngagementWorkflowTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#id13)
-
-Weekly course module engagement data stored in an ElasticSearch index; runs daily.
-
-Run on periodic build schedule, e.g. `H 3 * * *`.
-
-Note: HKS epodX wanted theirs to run every 2 hours, so for them we use: `H */2 * * *`,
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="ModuleEngagementWorkflowTask Cluster"
-cd $HOME
-
-TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh ModuleEngagementWorkflowTask \
-    --local-scheduler \
-    --date $TO_DATE \
-    --n-reduce-tasks $NUM_REDUCE_TASKS
-```
-
 ## Videos
-
-In edx docs: [Video](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#video)
 
 Tracks video interactions; runs daily.
 
+See edx docs: [Video](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/running_tasks.html#video)
+
 Run on periodic build schedule, e.g. `H 9 * * *`.
-
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="InsertToMysqlAllVideoTask Cluster"
-cd $HOME
-
-TO_DATE=`date +%Y-%m-%d`
-analytics-configuration/automation/run-automated-task.sh InsertToMysqlAllVideoTask --local-scheduler \
-  --interval "$START_DATE-$TO_DATE" \
-  --n-reduce-tasks $NUM_REDUCE_TASKS
-```
 
 ## Student Engagement
 
+Generates downloadable engagement CSV reports.
+
 ### Daily Reports
 
-In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
+See edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
 
 Run on a daily build schedule, e.g. `H 11 * * *`.
 
 Run this task only if your client requires daily Student Engagement reports.
 
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="StudentEngagementCsvFileTaskDaily Cluster"
-cd $HOME
-
-FROM_DATE=$(date +%Y-%m-%d --date="-1 day")
-TO_DATE=$(date +%Y-%m-%d)
-NOW=`date +%s`
-
-analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFileTask --local-scheduler \
-  --output-root "$EDXAPP_S3_BUCKET/grades-download/" \
-  --marker "$HADOOP_S3_BUCKET/intermediate/student_engagement/$NOW/marker" \
-  --interval "$FROM_DATE-$TO_DATE"
-```
-
 ### Weekly Reports
 
-In edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
+See edx docs: [StudentEngagementCsvFileTask](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/all.html#edx.analytics.tasks.data_api.student_engagement.StudentEngagementCsvFileTask)
 
 Run on a weekly build schedule, e.g. `H 13 * * 1`.
 
 Run this task only if your client requires weekly Student Engagement reports.
 
-```bash
-. /home/jenkins/jenkins_env
-export CLUSTER_NAME="StudentEngagementCsvFileTaskWeekly Cluster"
-cd $HOME
-
-FROM_DATE=$(date +%Y-%m-%d --date="-7 days")
-TO_DATE=$(date +%Y-%m-%d)
-NOW=`date +%s`
-
-analytics-configuration/automation/run-automated-task.sh StudentEngagementCsvFileTask --local-scheduler \
-  --output-root "$EDXAPP_S3_BUCKET/grades-download/" \
-  --marker "$HADOOP_S3_BUCKET/intermediate/student_engagement/$NOW/marker" \
-  --interval-type weekly \
-  --interval "$FROM_DATE-$TO_DATE"
-```
-
 ## Problem Response Reports
 
-In edx docs: [ProblemResponseReportWorkflow](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/workflow_entry_point.html#edx.analytics.tasks.insights.problem_response.ProblemResponseReportWorkflow)
+Generates downloadable problem responses CSV reports; runs daily.
 
-Generates learners' problem responses reports; runs daily.
-
-Run this task only if your client requires the Problem Response Reports.  Requires the [Analytics API Reports S3
-bucket](AWS_setup.md#analytics-api-reports), and the [Insights `enable_problem_response_download` waffle flag
-enabled](insights.md#configure-insights).
-
-If Course Block data is available, then it is merged into the generated reports.
+See edx docs: [ProblemResponseReportWorkflow](http://edx-analytics-pipeline-reference.readthedocs.io/en/latest/workflow_entry_point.html#edx.analytics.tasks.insights.problem_response.ProblemResponseReportWorkflow)
 
 Run on periodic build schedule, e.g. ` H 20 * * * `.
 
@@ -421,6 +298,10 @@ still configured to use the default daily partition.
 
 We use "midnight tomorrow" as the interval end, so that records gathered today will be included immediately in the
 generated reports.
+
+Run this task only if your client requires the Problem Response Reports.  Requires the [Analytics API Reports S3
+bucket](AWS_setup.md#analytics-api-reports), and the [Insights `enable_problem_response_download` waffle flag
+enabled](insights.md#configure-insights).
 
 Shell build step:
 
@@ -438,4 +319,3 @@ analytics-configuration/automation/run-automated-task.sh ProblemResponseReportWo
     --overwrite \
     --n-reduce-tasks $NUM_REDUCE_TASKS
 ```
-
