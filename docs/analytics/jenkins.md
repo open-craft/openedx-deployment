@@ -126,19 +126,19 @@ After establishing the tunnels you should be able to access Jenkins at `localhos
 Configuring EMR clusters
 ========================
 
-Updating from EMR 2.x to EMR 4.x required [many changes to the analytics pipeline code, its dependencies, and
-configuration](https://groups.google.com/forum/#!msg/openedx-ops/eCyNwYdhVcU/cOIHPLZiBwAJ).  See also [AWS: Differences
-introduced in EMR 4.x](http://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-4.5.0/emr-release-differences.html)
-
-Any questions or issues related to the analytics configuration should be posted to the [`openedx-ops` mailing
-list](https://groups.google.com/forum/#!forum/openedx-ops).
+Any questions or issues related to the analytics configuration should be posted to the [Open edX Discourse
+site](https://discuss.openedx.org/tag/analytics).
 
 Configuration S3 bucket
 -----------------------
 
-### EMR 4.7.1
+Updating from EMR 2.x to EMR 4.x required [many changes to the analytics pipeline code, its dependencies, and
+configuration](https://groups.google.com/forum/#!msg/openedx-ops/eCyNwYdhVcU/cOIHPLZiBwAJ).  See also [AWS: Differences
+introduced in EMR 4.x](http://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-4.5.0/emr-release-differences.html)
 
-To set up the runtime environment for EMR 4.7.1, download these files from the OpenCraft AWS account, and upload to the
+### EMR 4.x
+
+To set up the runtime environment for EMR 4.x, download these files from the OpenCraft AWS account, and upload to the
 `client-name-analytics-emr` bucket:
 
 * `mysql-connector-java-5.1.35.tar.gz` - java library for connecting to mysql.
@@ -193,6 +193,8 @@ Ensure these files exist on the analytics instance, and are backed up in the sec
   below for details.
 * `/home/jenkins/analytics-override.cfg`: configuration for the analytics pipeline.  See
   [analytics-override.cfg](#analytics-override-cfg) below for details.
+
+## Analytics repos
 
 Also, ensure these repositories are cloned and readable by the jenkins user:
 
@@ -261,6 +263,45 @@ Make sure to check what approach is used in current setup branches and alter `je
 The `emr-vars.yml` file is passed to the ansible playbook that handles EMR provisioning.  See
 [emr-vars.yml](resources/emr-vars.yml) for an example.  You'll need to update the S3 bucket names as per the [S3
 buckets](AWS_setup.md#s3) you created.
+
+### AWS region
+
+Open edX Analytics is complex to set up, and so is not used by that many organizations outside of edX. Therefore, some
+assumptions made in the code and configuration are specific to edX's region and requirements.
+
+edX runs on the `us-east-1` AWS region, which is also the default region for many AWS actions.  There are places in the
+analytics pipeline and configuration to configure the region used, but they don't always work.
+
+OpenCraft have successfully run Open edX Analytics on `eu-west-1` and `ca-central-1` regions, but both required minor
+configuration and code changes. Unfortunately, it's unlikely to be cost-effective to upstream these changes, so they
+remain as code drift that have to be carried through across version upgrades.
+
+Here are the changes required to use regions other than `us-east-1` for Open edX Analytics:
+
+* In [`jenkins_env`], set `AWS_REGION` to your desired region.
+* In [`emr-vars.yml`], set `region` to your desired region.
+* In [`emr-vars.yml`], specify the `fs.s3n.endpoint: "s3.amazonaws.com"`. See the [configuration: core-site] block for details.
+* Patch the `TASK_BRANCH` used in [`jenkins_env`] and [cloned to jenkins home] to use your desired region: [TASK_BRANCH patch]
+
+  Allows us to override the default S3 endpoint to use a custom region.
+1. Patch the `CONFIG_BRANCH` used in [`jenkins_env`] and [cloned to jenkins home]: [CONFIG_BRANCH patch]
+
+  Allows us to use the more consistent `ONDEMAND` pricing for the EMR task instances, instead of edX's default `SPOT`
+  pricing.
+
+### SigV4 authentication
+
+Amazon have [deprecated their S3 v2 authentication model][AWS deprecated SigV2], but it's still supported on existing S3
+buckets in some regions like `us-east-1`.
+
+In `ca-central-1` and other newer AWS regions, only the new [SigV4 mechanism][AWS SigV4] is supported.
+
+This change is required to support SigV4:
+
+* In [`emr-vars.yml`], use `release_label: 'emr-4.9.6'`
+
+  Using [EMR version 4.9.6] causes EMR to use AWS Signature Version 4 exclusively to authenticate requests to Amazon S3.
+
 
 Jenkins analytics jobs
 ----------------------
@@ -331,4 +372,13 @@ Troubleshooting
   The subnet configuration was invalid: No route to any external sources detected in Route Table for Subnet: subnet-xxxxx for VPC: vpc-xxxxx
   ```
   This could mean you have not created an Internet Gateway for your VPC. See [VPC DNS Hostname](AWS_setup.md#vpc-dns-hostname)
-  
+
+[`jenkins_env`]: resources/jenkins_env
+[`emr-vars.yml`]: resources/emr-vars.yml
+[cloned to jenkins home]: #analytics-repos
+[configuration: core-site]: resources/emr-vars.yml#L39-L44
+[AWS deprecated SigV2]: https://aws.amazon.com/blogs/aws/amazon-s3-update-sigv2-deprecation-period-extended-modified/
+[AWS SigV4]: https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
+[EMR version 4.9.6]: https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-release-4x-details.html#emr-496-release
+[CONFIG_BRANCH patch]: https://github.com/edx/edx-analytics-configuration/compare/open-release/koa.2a...open-craft:opencraft-release/koa.2a
+[TASK_BRANCH patch]: https://github.com/edx/edx-analytics-pipeline/compare/open-release/koa.2a...open-craft:opencraft-release/koa.2a-ubc
