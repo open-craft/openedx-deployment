@@ -90,6 +90,30 @@ manually. The details may be out of date now, but are provided for reference.
 	terraform apply
     ```
 
+## Upgrading existing resources
+
+Follow this procedure to upgrade/replace instances that were created using the [initial creation](#initial-creation) steps.
+These instructions assume that you're running only one instance, but the same logic can be applied for multiple
+instances.
+
+* Change directories to where you've stored your terraform `*.tf` files from [Setup](#setup-terraform).
+* Update `variabls.tf` to temporarily increment the `analytics_number_of_instances` count (to 2).
+* Run `terraform apply` to create the new EC2 instance.
+* [Provision the new instance using ansible](insights.md#run-ansible).
+
+Once you're satisfied that the new instance is working, replace the old instance with the new one.
+
+* Update `variables.tf` and decrement the `analytics_number_of_instances` count (back to 1).
+* Replace the old analytics instance with the new one in terraform state:
+
+    ```
+    terraform state rm 'module.analytics.aws_instance.analytics[0]'
+    terraform state mv 'module.analytics.aws_instance.analytics[1]' 'module.analytics.aws_instance.analytics[0]'
+    ```
+* Update `variables.tf` to increase the `analytics_instance_iteration` counter (this is just for record purposes, doesn't affect functionality).
+* Run `terraform apply` again to move the new instance into place.
+* Manually stop/terminate the old EC2 instance once everything is verified OK.
+
 # MySQL database
 
 The analytics databases and users need to be created manually.
