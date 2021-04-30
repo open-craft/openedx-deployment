@@ -3,6 +3,8 @@ Insights/Analytics API Setup
 
 See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
+See [Director Setup] for details on how to set up the ansible deployment "director" instance.
+
 Shell into the [director instance](AWS_setup.md#director-ec2), launch the virtualenv, and go to the playbooks dir:
 
 ```bash
