@@ -195,10 +195,10 @@ See [Jenkins Setup](jenkins.md).
 
 
 [Amazon Web Services]: https://aws.amazon.com
-[terraform]: https://www.terraform.io/
-[Ansible]: https://www.ansible.com/
+[terraform]: https://www.terraform.io
+[Ansible]: https://www.ansible.com
 [AdministratorAccess]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html#jf_administrator
-[edx/configuration]: https://github.com/edx/configuration)
+[edx/configuration]: https://github.com/edx/configuration
 [EC2 instance]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#ec2
 [S3 buckets]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#s3
 [RDS]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#rds
