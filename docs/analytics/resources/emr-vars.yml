@@ -19,7 +19,7 @@ role: EMR_EC2_DefaultRole
 keypair_name: 'analytics'  # your analytics instance key pair name
 vpc_subnet_id: 'subnet-SET ME'  # public subnet of the VPC
 log_uri: "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/logs"
-release_label: 'emr-4.7.2'
+release_label: 'emr-4.7.2'  # use emr-4.9.6 if SigV4 support is required
 
 applications:
   - name: Hadoop
@@ -43,10 +43,13 @@ configurations:
 #   properties:
 #     fs.s3n.endpoint: "s3.amazonaws.com"
 
+# https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-hadoop-script.html)
 steps:
   - type: hive_install
+    jar: "{{ lookup('env', 'SCRIPT_RUNNER_JAR_S3_URL') }}"
   - type: script
     name: "Install Sqoop"
+    jar: "{{ lookup('env', 'SCRIPT_RUNNER_JAR_S3_URL') }}"
     step_args:
       - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}/install-sqoop"
       - "{{ lookup('env', 'TASK_CONFIGURATION_S3_BUCKET') }}"

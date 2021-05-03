@@ -1,9 +1,9 @@
 edX AWS Analytics Deployment
 ============================
 
-This document describes how to deploy the edX Analytics stack to the [Amazon Web Services](https://aws.amazon.com). We
-will be using [Ansible](https://www.ansible.com/) to automate deployment where ansible playbooks are available, but some
-manual setup is still required.
+This document describes how to deploy the edX Analytics stack to the [Amazon Web Services].
+We will be using [terraform] and [Ansible] to automate deployment where ansible playbooks are available, but some manual
+setup is still required.
 
 To deploy LMS/CMS, see [openEdx AWS deployment and upgrades](../aws-openedx/aws-deployment.md).
 
@@ -13,14 +13,18 @@ Prerequisites
 This document assumes a working edxapp setup exists, with an `edxapp` MySQL database, `ENABLE_OAUTH2_PROVIDER` set to
 `true`, and tracking logs rotated into an S3 bucket, named something like `client-name-tracking-logs`.
 
+To apply the terraform changes, you will need AWS credentials for an IAM User with [AdministratorAccess].
+
 We run the analytics ansible playbooks from a separate EC2 `director` instance, with the
-[`edx/configuration`](https://github.com/edx/configuration) repository [and its dependencies
-installed](#director-ec2).
+[edx/configuration] repository [and its dependencies installed](#director-ec2).
 
 General Security Considerations
 ===============================
 
+* Store your AWS credentials (key, secret) securely, and delete them when they are no longer required.
 * Each set of instances (`analytics`, `director`, etc.) should have its own ssh keypair.
+* Access between resources is granted by Security Groups, e.g. the edxapp RDS can be queried by the analytics
+  EMR instances, because they are members of a Security Group which must be applied to the edxapp database.
 * Default Jenkins setup is unprotected and allows anyone to do anything, so never allow external access to Jenkins (even
   briefly).  Close the 8080 port on instance with Jenkins to external world *before* running ansible script that
   installs Jenkins. Use [SSH tunneling](jenkins.md#ssh-tunneling-to-jenkins) to connect to it from your machine.
@@ -47,345 +51,74 @@ deployment.  The files and their expected contents are discussed in subsequent s
 AWS Resources
 =============
 
-We will create the following AWS resources in this setup:
+We will use terraform to create the following AWS resources in this setup.
 
-* One [EC2 instance](#ec2) for hosting Insights (analytics dashboard), the Analytics API, and Jenkins (analytics
+**Note**: The service links below point to an older version of this documentation which created these services
+manually. The details may be out of date now, but are provided for reference.
+
+* One [EC2 instance] for hosting Insights (analytics dashboard), the Analytics API, and Jenkins (analytics
   scheduler).
   Alternatively, you may create a separate EC2 for each service, but ensure that they all share a security group.
-* Two to five [S3 buckets](#s3).
-* One [RDS](#rds) instance for Insights and Analytics API MySQL databases.
-* One [ElasticSearch](#elasticsearch) instance.
+* Two to five [S3 buckets].
+* One [RDS] instance for Insights and Analytics API MySQL databases.
+* One [ElasticSearch] instance.
 * EMR clusters are provisioned on a per-task basis.
-* Access between resources is controlled by [IAM](#iam).
-
-IAM
----
-
-The following Identity Access Management (IAM) users, roles, and policies are used by the analytics services.
-
-### Provision EMR Clusters
-
-The Jenkins instance will need to launch and terminate EMR clusters.
-
-We will create an IAM role for the `analytics` EC2 instance, to give it permission to provision EMR clusters.
+* Access between resources is controlled by [IAM].
 
-* Go to `IAM -> Policies -> Create Policy`
-* Select "Create Your Own Policy"
-* Give it a recognizable name (eg. `provision_emr_clusters`)
-* Paste this into "Policy Body" and click "Create":
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-          "Effect": "Allow",
-          "Resource": "*",
-          "Action": [
-              "elasticmapreduce:*",
-              "iam:PassRole",
-              "route53:Get*",
-              "route53:List*",
-              "ec2:DescribeInstances",
-              "rds:DescribeDBInstances"
-          ]
-      }
-  ]
-}
-```
-
-* Now go to `IAM -> Roles -> Create New Role`
-* Give it a recognizable name (eg. `edxanalytics`)
-* Select `Amazon EC2` role type on next step
-* Select the policy you created above (eg. `provision_emr_clusters`)
-* Hit "Create Role" on final step
-
-### ElasticSearch User and Role
-
-The analytics API needs to be able to read indexes from the AWS ElasticSearch instance.
+# Terraform
 
-* Go to `IAM -> Users -> Add User`
-* Give it a recognizable name (eg. `analytics_elasticsearch`)
-* Give it Programmatic access
-* Don't worry about attaching any policies; access will be granted when the ElasticSearch instance is created.
-* Copy the security credentials to the [`vars-analytics.yml`](resources/vars-analytics.yml) fields:
-  * `ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
-  * `ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g.
-      `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
-* Note the user's ARN code for use when the [ElasticSearch service](#elasticsearch) is created.
+## Setup terraform
 
-The EMR EC2 Instances need to be able to write to the ElasticSearch index
+1. [Install terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+1. Copy the files in [resources/terraform](resources/terraform/) to your client's secure repository.
+1. Update the variables in [variables.tf](resources/terraform/variables.tf).
+1. Set up an [AWS profile] locally. Use the `aws_profile` name and `aws_region` chosen in `variables.tf`.
 
-* Go to `IAM -> Policies -> Create Policy`
-* Select "Create Your Own Policy"
-* Give it a recognizable name (eg. `elasticsearch_all`)
-* Paste this into "Policy Body" and click "Create":
+## Initial creation
 
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Resource": "*",
-            "Action": [
-                "es:*"
-            ]
-        }
-    ]
-}
-```
-
-
-
-### VPC DNS hostname
-
-Ensure DNS hostnames are enabled in the VPC where your EMR jobs will be running.  If DNS hostnames are disabled, EMR
-provisioning will be stuck at `provisioning`.  To check whether DNS hostnames are enabled:
-
-* Go to the AWS VPC dashboard, and select your VPC.
-* Check the value of "DNS hostnames" in the Summary tab/pane. If it says `no`, click `Actions -> Edit DNS Hostnames`,
-  select `Yes`, and save.
-
-If you are creating your EMR cluster within a VPC then additionally, you'll need to add an Internet Gateway to your VPC:
-
-* Create an Internet Gateway and attached it to your VPC.
-* Add the Internet Gateway to the Route Table.
-
-Here's a good [doc](https://aws.amazon.com/blogs/big-data/launching-and-running-an-amazon-emr-cluster-inside-a-vpc/) explaining this.
-
-
-### Analytics Security Group
-
-* Go to the EC2 dashboard in AWS console.
-* Click on 'Network & Security: Security Groups' and click 'Create Security Group'.
-* `analytics` with the following Inbound rules:
-    * `SSH`, port `22`, source `director` security group
-    * `HTTP`, port `80`, source `Anywhere` (used to access the Insights over http)
-    * `HTTPS`, port `443`, source `Anywhere` (used to access the Insights over https)
-
-
-### EMR Roles
-
-The simplest way to generate the EMR IAM roles is to let AWS do it automatically:
-
-* Go to the EMR dashboard in AWS console.
-* Click "Create Cluster"
-* Make sure "Permissions" are set to `Default`
-* Note that we only need IAM roles created automatically, so set `Instance Type` to the smallest instance available, and
-  create only 1.
-* Use the `analytics` security group.
-* Click "Create cluster"
-* Wait for these default roles and security groups to be automatically generated:
-  * `EMR_DefaultRole`: default EMR role
-  * `EMR_EC2_DefaultRole`: role used by our standard [emr-vars.yml](resources/emr-vars.yml) configuration file.
-  * `ElasticMapReduce-master`: security group for the EMR master instances.
-  * `ElasticMapReduce-slave`: security group for the EMR slave instances.
-* You can now click "Terminate" to kill the cluster.
-
-To allow the EMR resources to write to the ElasticSearch index:
-
-* Go to `IAM -> Roles` and locate the `EMR_EC2_DefaultRole`.
-* Attach the ElasticSearch policy created above (`elasticsearch_all`).
-
-### EMR Security Groups
-
-To allow SSH access from the analytics instance to the EMR, we need to edit the EMR master security group.
-
-* Go to the EC2 dashboard in AWS console.
-* Click on 'Network & Security: Security Groups'
-* Select the `ElasticMapReduce-master` security group and Edit the Inbound rules.
-* Add Inbound SSH access from the analytics security group:
-  * `SSH`, port `22`, source `analytics` Security Group
-
-The analytics pipeline needs to be able to access the `analytics` and `edxapp` databases.
-
-To do so, create an `EMR RDS` security group with the following rules:
-
-* `MYSQL/Aurora`, port `3306`, source `ElasticMapReduce-master` Security Group
-* `MYSQL/Aurora`, port `3306`, source `ElasticMapReduce-slave` Security Group.
-
-### `grades-download` Permissions
-
-Some Jenkins jobs (e.g. `StudentEngagementCsvFileTask`) require downloads to be placed in the `grades-download`
-directory of the edxapp S3 bucket. In order for the resulting files to be downloadable from the instructor dashboard,
-permissions on the bucket must be set as follows:
-
-* Go to `S3` and select the bucket configured by `EDXAPP_GRADE_BUCKET`.
-* Select `Permissions` and then select `Edit bucket policy`
-* Paste the following into the `Bucket Policy Editor`:
-  * Replace `my-edxapp-bucket` with the name of the bucket
-  * Replace `arn:aws:edxapp-user` with the ARN for your edxapp AWS user (access granted via `EDXAPP_AWS_ACCESS_KEY_ID`
-    and `EDXAPP_AWS_ACCESS_KEY_SECRET`).
-
-```json
-{
-  "Version": "2008-10-17",
-  "Id": "...",
-  "Statement": [
-      {
-          "Sid": "some-unique-identifier",
-          "Effect": "Allow",
-          "Principal": {
-              "AWS": "arn:aws:edxapp-user",
-          },
-          "Action": "s3:GetObject",
-          "Resource": "arn:aws:s3:::my-edxapp-bucket/grades-download/*"
-      }
-  ]
-}
-```
-
-### Analytics API Reports
-
-Do this step only if your client requires the Problem Response Reports.
-
-The pipeline task `ProblemResponseReportWorkflow` generates reports and stores them to S3.  The analytics API sends
-links to these report files to Insights.  So we need to create an IAM user with read access to the analytics-api report
-bucket.
-
-* Go to `IAM -> Users -> Create New User`
-* Give it a recognizable name (eg. `analytics_reports`)
-* Create security credentials, and copy them to `vars-analytics.yml` fields under
-  `ANALYTICS_API_REPORT_DOWNLOAD_BACKEND`:
-
-  * `AWS_ACCESS_KEY_ID`: the Access Key ID goes here, e.g. `AKIA0123456789ALPHAB`
-  * `AWS_SECRET_ACCESS_KEY` the Secret Access Key goes here, e.g. `abcdefghijklmnopqrstuvwxyz01234567899/_+`.
-  * `AWS_STORAGE_BUCKET_NAME`: the S3 bucket created for the analytics-api reports goes here, e.g.
-    `client-name-analytics-api-reports`
-* Under Permissions, create an `Inline Policy -> Custom Policy`
-* Give it a recognizable name (eg. `s3-read-analytics-reports`)
-* Paste this into "Policy Body", with the correct bucket name replaced where
-  `client-name-analytics-api-reports` is used below.
-
-  *Note*: the Resource `"arn:aws:s3:::client-name-analytics-api-reports"` refers to the top-level bucket access, and
-   `"arn:aws:s3:::client-name-analytics-api-reports/*"` refers to all the files stored inside the bucket.  Both resource statements are required.
-
- ```json
-    {
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "s3:Get*",
-                    "s3:List*"
-                ],
-                "Resource": [
-                    "arn:aws:s3:::client-name-analytics-api-reports",
-                    "arn:aws:s3:::client-name-analytics-api-reports/*"
-                ]
-            }
-        ]
-    }
-   ```
-   - Click "Create"
-
-* Select `Save`
-
-### VPC Subnet
-
-* Go to the AWS VPC dashboard, and select Subnets
-* Ensure that one of the subnet IDs listed in the Subnets list is in the `vpc_subnet_id` variable in [`emr-vars.yml`](resources/emr-vars.yml).
-
-ElasticSearch
--------------
-
-The Analytics Pipeline's Learner tasks write their statistics to an ElasticSearch index, which is read by the Analytics
-API's Learner API to display in Insights.
-
-* Go to `Analytics -> Elasticsearch Service -> Create a new domain`
-* Make sure the ES instance is being created under the correct AWS region.  It should match your EC2 region, and
-  [`ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION`](resources/vars-analytics.yml#L59).
-* Choose a unique domain name, e.g. `client-name-analytics-es`
-* Select Elasticsearch version 1.5
-* Node configuration:
-  * Instance count: 1
-  * Instance type: `t2.small.elasticsearch`
-  * Enable dedicated master: no
-  * Enable zone awareness: no
-  * Storage type: EBS
-  * EBS volume type: General Purpose (SSD)
-  * EBS volume size: 10GB
-  * Automated snapshot start hour: 00:00 UTC (default)
-  * Advanced options: `rest.action.multi.allow_explicit_index: true`
-* Grant full access to the [`analytics_elasticsearch` user](#elasticsearch-user) created above.
-
-In around 10 minutes, the new ElasticSearch domain will be created.  Paste the `Endpoint` (e.g.
-`https://search-client-name-analytics-es-xxxxx.eu-west-1.es.amazonaws.com`) into two places:
-
-* `vars-analytics.yml`: [`ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST`](resources/vars-analytics.yml#L60)
-* `analytics-override.yml`: [`[elasticsearch] host`](resources/analytics-override.cfg#L48)
-
-EC2
----
-
-Click the *Launch Instance* button on the EC2 Dashboard, and follow the steps to configure the instance.  If you are
-creating separate instances for Insights, Analytics API, and/or Jenkins, then create an EC2 for each service.
-
-Most other configuration steps you can leave at their default values, unless specified below:
-
-1. Community AMI - use [Ubuntu Cloud Images Locator](https://cloud-images.ubuntu.com/locator/) to find a recent *Ubuntu
-   16.04 LTS (Xenial Xerus)* build.
-   Search for version 16.04 amd64 `ebs-ssd` or `hvm-ssd` instance in your preferred AWS region, for example us-east-1.
-   Copy the AMI ID of the image you selected (it will look something like `ami-d8132bb0`).
-1. Choose Instance Type - General Purpose `t2.medium`.
-1. Configure Instance
-    1. Ensure the Network setting is set to the default VPC, *not* EC2-Classic.
-    1. Assign `edxanalytics` IAM role.
-       **Important**: roles can't be added after instance is launched, so forgetting to set this setting will require
-       instance re-launch.
-       If you missed this step and don't want to re-run your provisioning steps, you can create an image (AMI) from the
-       incorrect instance, and launch a new EC2 using from that image, and correct the IAM role issue.
-1. Add Storage - 50GB
-1. Tag Instance - `Name` tag with `analytics-N` value.
-1. Security Group - add instance to `default` and `analytics` security groups.
-   If `analytics` is not created yet - create it with the following rules:
-    * `SSH`, port `22`, source `director` security group
-    * `HTTP`, port `80`, source `Anywhere` (used to access the Insights over http)
-    * `HTTPS`, port `443`, source `Anywhere` (used to access the Insights over https)
-1. SSH key pair - use `analytics` key pair (create if needed).
-
-Note that Insights runs on 18110 port by default, and we're not opening it, so it should be configured to listen on
-default HTTP and/or HTTPS ports with `INSIGHTS_NGINX_PORT` variables `INSIGHTS_NGINX_SSL_PORT` in
-[`vars-analytics.yml`](resources/vars-analytics.yml).
-
-After the instance is fully initialized, SSH into it using the key file you used when creating this instance:
-
-```bash
-ssh -i path/to/keyfile.pem ubuntu@ec2-xx-xx-xx-xx.compute-1.amazonaws.com
-```
-
-Install all available updates with:
-
-```bash
-sudo apt-get update && sudo apt-get -y upgrade
-```
-
-### Director EC2
-
-The `director` instance should be running a similar version of Ubuntu as the analytics services you're provisioning.  It
-can be a `t2.micro`, with 8GB disk space, and should be a member of:
-* the `default` Security Group shared by your other AWS resources, and
-* a `director` security group with one rule defined:
-  `SSH`, port `22`, source `Anywhere`
-
-See [Director Setup](../shared/director.md) for details on how to set up the ansible deployment "director" instance.
-
-RDS
----
-
-If you're upgrading an existing analytics deployment, we strongly recommend you create a new RDS instance, and re-run
-the following steps.  Schema changes aren't well handled in analytics-land yet, and so it's best to let the analytics
-tasks and API deployment process create their tables and fields.
-
-* Launch a new `analytics` RDS instance (see [RDS](../shared/RDS.md)).
-* Ensure that both the new `analytics` RDS, and the existing `edxapp` RDS, are members of the [`EMR RDS` security group](#emr-security-groups) created above.
-
-  See [Modify Security Groups](../shared/RDS.md#modify-security-groups) for instructions on how to add a security group to an existing RDS instance.
-
-* [Test the RDS instance](../shared/RDS.md#test-access) from the Insights/Analytics API instance to ensure it can connect to the new RDS instance.
-
-### Create analytics databases and user
+* Change directories to where you've stored your terraform `*.tf` files from [Setup](#setup-terraform).
+* From the terminal, run:
+
+   	```
+   	# Downloads the terraform provider and source templates
+   	terraform init
+
+   	# Preview the changes that will be made (check these carefully)
+   	terraform plan
+
+   	# Apply those changes
+	terraform apply
+    ```
+
+## Upgrading existing resources
+
+Follow this procedure to upgrade/replace instances that were created using the [initial creation](#initial-creation) steps.
+These instructions assume that you're running only one instance, but the same logic can be applied for multiple
+instances.
+
+* Change directories to where you've stored your terraform `*.tf` files from [Setup](#setup-terraform).
+* Update `variabls.tf` to temporarily increment the `analytics_number_of_instances` count (to 2).
+* Run `terraform apply` to create the new EC2 instance.
+* [Provision the new instance using ansible](insights.md#run-ansible).
+
+Once you're satisfied that the new instance is working, replace the old instance with the new one.
+
+* Update `variables.tf` and decrement the `analytics_number_of_instances` count (back to 1).
+* Replace the old analytics instance with the new one in terraform state:
+
+    ```
+    terraform state rm 'module.analytics.aws_instance.analytics[0]'
+    terraform state mv 'module.analytics.aws_instance.analytics[1]' 'module.analytics.aws_instance.analytics[0]'
+    ```
+* Update `variables.tf` to increase the `analytics_instance_iteration` counter (this is just for record purposes, doesn't affect functionality).
+* Run `terraform apply` again to move the new instance into place.
+* Manually stop/terminate the old EC2 instance once everything is verified OK.
+
+# MySQL database
+
+The analytics databases and users need to be created manually.
+
+## Create analytics databases and user
 
 Create `dashboard`, `analytics-api`, and `reports` databases, and `analytics` user with password:
 
@@ -450,27 +183,6 @@ GRANT SELECT on *.* to 'edxapp_ro'@'%';
 
 Store these credentials in [`edxapp_creds`](resources/creds_example).
 
-Elastic IP
-----------
-
-Create new Elastic IP and associate it with Insights EC2 instance (see [Elastic IP](../shared/Elastic_IP.md)).
-
-S3
---
-
-Create the required S3 buckets:
-
-* `client-name-tracking-logs`: for storing tracking logs emitted by LMS and sharing them with analytics pipeline.
-  (May already be created, see [prerequisites](#prerequisites) above.)
-* `client-name-analytics-emr` - for initial EMR cluster provisioning and logs. Some setups may use a separate
-  bucket for EMR logs, e.g. `client-name-analytics-emr-logs`.  See [Configuration S3
-  bucket](jenkins.md#configuration-s3-bucket) for the list of files that need to be uploaded to this bucket.
-* `client-name-edxanalytics` - for analytics pipeline configuration (access credentials, GeoIP data, etc.) and data
-  (hadoop, hive).  Some setups may use a separate bucket for Hive/hadoop, e.g.  `client-name-edxanalytics-hadoop`.  See
-  [Pipeline S3 bucket](jenkins.md#pipeline-s3-bucket) for the list of files that need to be uploaded to this bucket.
-* `client-name-analytics-api-reports` - used to share reports generated by the analytics pipeline with the analytics API.  Only required for some analytics pipeline tasks (e.g. `ProblemResponseReportWorkflow`).
-
-
 Insights/Analytics API Setup
 ============================
 
@@ -480,3 +192,17 @@ Jenkins Setup
 =============
 
 See [Jenkins Setup](jenkins.md).
+
+
+[Amazon Web Services]: https://aws.amazon.com
+[terraform]: https://www.terraform.io
+[Ansible]: https://www.ansible.com
+[AdministratorAccess]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html#jf_administrator
+[edx/configuration]: https://github.com/edx/configuration
+[EC2 instance]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#ec2
+[S3 buckets]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#s3
+[RDS]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#rds
+[ElasticSearch]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#elasticsearch
+[IAM]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#iam
+[AWS profile]: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html
+[Director Setup]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/shared/director.md

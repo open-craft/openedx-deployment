@@ -3,6 +3,8 @@ Insights/Analytics API Setup
 
 See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
+See [Director Setup] for details on how to set up the ansible deployment "director" instance.
+
 Shell into the [director instance](AWS_setup.md#director-ec2), launch the virtualenv, and go to the playbooks dir:
 
 ```bash
@@ -112,29 +114,12 @@ ubuntu@director> # rerun ansible task
 OAuth2
 ======
 
-While the playbook is running, you can create the OAuth2 clients used by the analytics instance.
-
 Insights OAuth2
 ---------------
 
-Create the OAuth2 client for accessing Insights in the LMS by SSHing to your `edxapp` instance.  You can do this before
-your Insights EC2 instance is provisioned.  Just make sure the `INSIGHTS_OAUTH2_KEY` and `INSIGHTS_OAUTH2_SECRET` values
-match those specified in your [`vars-analytics.yml`](resources/vars-analytics.yml).
+OAuth2 application setup is handled by the `oauth_client_setup` ansible role, which is also run by the openedx_native.yml playbook. So whenever you're running ansible, you need to make sure that the variables for the [`INSIGHTS_OAUTH2_APP_CLIENT_NAME` config block] are always provided, even when you're not provisioning the Insights service.
 
-```bash
-# ssh to edxapp instance
-sudo -Hu edxapp bash
-cd
-source edxapp_env
-cd edx-platform
-./manage.py lms --setting=$EDX_PLATFORM_SETTINGS create_oauth2_client \
-    <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL> \
-    <INSIGHTS_BASE_URL_PROTOCOL>://<INSIGHTS_BASE_URL>/complete/edx-oidc/ \
-    confidential --client_name insights \
-    --client_id <INSIGHTS_OAUTH2_KEY> \
-    --client_secret <INSIGHTS_OAUTH2_SECRET> \
-    --trusted
-```
+Note: the OAuth2 configuration for Insights is broken on juniper.master, and was fixed for later versions by [configuration PR#5967].
 
 ### Analytics Pipeline OAuth2 client
 
@@ -143,29 +128,16 @@ Do this step only if your client requires the Problem Response Reports.
 This client is used by the analytics pipeline `ProblemResponseReportWorkflow` task to fetch course list and course
 blocks data from the LMS REST API.
 
-Copy the `client_id` and `client_secret` used here into [`analytics-override.cfg`](resources/analytics-override.cfg)
-under `[edx-rest-api]`.
-
-Provide a `user` name who has global staff level access to the courses you'll be fetching.
-
-*Note:* Because this client doesn't use OIDC handshaking, the URLs provided are not important.  However, the `user` is.
-
-```bash
-
-# ssh to edxapp instance
-sudo -Hu edxapp bash
-cd
-source edxapp_env
-cd edx-platform
-./manage.py lms --setting=aws create_oauth2_client \
-    http://localhost:9999 \
-    http://localhost:9999/complete/edx-oidc/ \
-    confidential --client_name analytics-pipeline \
-    --client_id <client_id> \
-    --client_secret <client_secret> \
-    --user <staff_username> \
-    --trusted
-```
+1. Follow these instructions to [Setup OAuth Client for Internal Services (Django Oauth Toolkit version)] for the analytics data service.
+   *Note:* There's no need to set the `SOCIAL_AUTH_*` variables on the analytics data API service as described in these instructions; this step can be skipped.
+1. Update your [`analytics-override.cfg`](resources/analytics-override.cfg) to add this stanza, using the `service-sso`
+   credentials.
+    ```
+    [edx-rest-api]
+    client_id: <service-sso-key>
+    client_secret: <service-sso-secret>
+    auth_url: https://lms.domain.tld/oauth2/access_token
+    ```
 
 Verify Insights
 ===============
@@ -315,3 +287,8 @@ We commonly enable these features:
   `display_learner_analytics` flag to be enabled, and its associated tasks to be run.
 * `enable_problem_response_download`: shows a "Download CSV" link on the Performance tab.  Enable only if your client
   requires these reports.  Run the `ProblemResponseReportWorkflow` pipeline task to generate reports for download.
+
+
+[`INSIGHTS_OAUTH2_APP_CLIENT_NAME` config block]: https://github.com/edx/configuration/blob/master/playbooks/roles/oauth_client_setup/defaults/main.yml#L31-L42
+[configuration PR#5967]: https://github.com/edx/configuration/pull/5967
+[Setup OAuth Client for Internal Services (Django Oauth Toolkit version)]: https://openedx.atlassian.net/wiki/spaces/COMM/pages/1532395987/Setup+OAuth+Client+for+Internal+Services+Django+Oauth+Toolkit+version
