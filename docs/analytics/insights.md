@@ -117,7 +117,7 @@ OAuth2
 Insights OAuth2
 ---------------
 
-OAuth2 application setup is handled by the `oauth_client_setup` ansible role, which is also run by the openedx_native.yml playbook. So whenever you're running ansible, you need to make sure that the variables for the [`INSIGHTS_OAUTH2_APP_CLIENT_NAME` config block] are always provided, even when you're not provisioning the Insights service.
+OAuth2 application setup is handled by the `oauth_client_setup` ansible role, which is also run by the openedx_native.yml playbook. So whenever you're running ansible, you need to make sure that the variables for the [INSIGHTS_OAUTH2_APP_CLIENT_NAME config block] are always provided, even when you're not provisioning the Insights service.
 
 Note: the OAuth2 configuration for Insights is broken on juniper.master, and was fixed for later versions by [configuration PR#5967].
 
@@ -162,7 +162,7 @@ your `vars-analytics.yml`.
        `/edx/app/edxapp/*.env.vars`.
   * Successfully authenticates to LMS, but some error happens later.
     * In LMS: `invalid_request The requested redirect didn't match the client settings.` - make sure OAuth2 Client is configured with correct Insights endpoint:
-    * Go to LMS_URL/admin/oauth2/clients, select the Insights client, and make sure `Redirect` field contains
+    * Go to `LMS_URL`/admin/oauth2/clients, select the Insights client, and make sure `Redirect` field contains
                 [the correct URL](#insights-oauth2), using `http` or `https` as appropriate for your setup.
     * Check `SOCIAL_AUTH_REDIRECT_IS_HTTPS` is set to `true` for HTTPS Insights and to `false` for HTTP
                 Insights.
@@ -183,50 +183,43 @@ your `vars-analytics.yml`.
           happens in two cases:
       * Insights setting `SOCIAL_AUTH_EDX_OIDC_SECRET` does not match `Client secret` in LMS
       * Insights setting `SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY` does not match
-                `SOCIAL_AUTH_EDX_OIDC_SECRET` - should not normally happen, as they are taken from the same variable.
+        `SOCIAL_AUTH_EDX_OIDC_SECRET` - should not normally happen, as they are taken from the same variable.
 * Insights home shows 500 after logging in, and `/edx/var/log/insights/edx.log` shows something like:
 
-    ```bash
-    ProgrammingError: (1146, "Table 'dashboard.soapbox_message' doesn't exist")
-    ```
+        ProgrammingError: (1146, "Table 'dashboard.soapbox_message' doesn't exist")
+
     To fix this, run syncdb as the `insights` user:
 
-    ```bash
-    sudo -u insights -Hs
-    source ~/insights_env
-    cd ~/edx_analytics_dashboard
-    ./manage.py migrate --run-syncdb
-    ```
+        sudo -u insights -Hs
+        source ~/insights_env
+        cd ~/edx_analytics_dashboard
+        ./manage.py migrate --run-syncdb
 
     cf [openedx-analytics post](https://groups.google.com/forum/#!msg/openedx-analytics/WkqJwPERf80/WVtu155PBwAJ)
+
 * If the `ImportEnrollmentsIntoMysql` task hasn't run yet, then the home page of Insights may return a 500 error,
   and `/edx/var/log/insights/edx.log` will show something like:
 
-  ```bash
-  NotFoundError: Resource http://127.0.0.1:8100/api/v0/course_summaries/ was not found on the API server.
-  ```
+        NotFoundError: Resource http://127.0.0.1:8100/api/v0/course_summaries/ was not found on the API server.
+
   However, this only affects the home course list page.  The inner course-specific analytics pages will display fine.
+
 * Even after the `ImportEnrollmentsIntoMysql` task has run, the home page of Insights is still returning a 500 error,
   and `/edx/var/log/insights/edx.log` shows something like:
 
-  ```bash
-  ClientError: Resource "course_summaries/" returned status code 500
-  ```
+        ClientError: Resource "course_summaries/" returned status code 500
 
   And `/edx/var/log/analytics-api/edx.log` shows something like:
-
-  ```bash
-  TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'
-  ```
+    
+        TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'
 
   This issue happens because the analytics pipeline creates tables and fields that the Analytics API accesses, but it
   doesn't create them using the default values that the Analytics API expects.  This should be fixed properly in the
   code someday, but to work around it, run this on the `reports` database:
 
-  ```sql
-  mysql> alter table course_meta_summary_enrollment alter passing_users set default 0;
-  mysql> update course_meta_summary_enrollment set passing_users=0 where passing_users is Null;
-  ```
+        mysql> alter table course_meta_summary_enrollment alter passing_users set default 0;
+        mysql> update course_meta_summary_enrollment set passing_users=0 where passing_users is Null;
+
 * There is no data in Insights - that's actually ok, we haven't run any pipeline tasks yet.
 
 Configure Insights
@@ -289,6 +282,7 @@ We commonly enable these features:
   requires these reports.  Run the `ProblemResponseReportWorkflow` pipeline task to generate reports for download.
 
 
-[`INSIGHTS_OAUTH2_APP_CLIENT_NAME` config block]: https://github.com/edx/configuration/blob/master/playbooks/roles/oauth_client_setup/defaults/main.yml#L31-L42
+[Director Setup]: ../shared/director.md
+[INSIGHTS_OAUTH2_APP_CLIENT_NAME config block]: https://github.com/edx/configuration/blob/master/playbooks/roles/oauth_client_setup/defaults/main.yml#L31-L42
 [configuration PR#5967]: https://github.com/edx/configuration/pull/5967
 [Setup OAuth Client for Internal Services (Django Oauth Toolkit version)]: https://openedx.atlassian.net/wiki/spaces/COMM/pages/1532395987/Setup+OAuth+Client+for+Internal+Services+Django+Oauth+Toolkit+version

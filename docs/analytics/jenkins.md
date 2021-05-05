@@ -154,7 +154,7 @@ To set up the runtime environment for EMR 4.x, download these files from the Ope
 ### EMR 2.4.11
 
 AWS has dropped support for EMR 2.x.x, so use only when maintaining legacy analytics systems.  See
-[resources/emr-2.x](resources/emr-2.x) for example configuration files appropriate for this version.
+[resources/emr-2.x](resources/emr-2.x/) for example configuration files appropriate for this version.
 
 Download these files from the OpenCraft AWS account, and upload to the `client-name-analytics-emr` bucket:
 
@@ -200,17 +200,14 @@ Also, ensure these repositories are cloned and readable by the jenkins user:
 
 * `/home/jenkins/analytics-configuration`: clone the client's fork and branch, e.g.:
 
-  ```yaml
-  analytics_configuration_repo: 'https://github.com/xxx/edx-analytics-configuration.git'
-  analytics_configuration_version: 'master'
-  ```
+        analytics_configuration_repo: 'https://github.com/xxx/edx-analytics-configuration.git'
+        analytics_configuration_version: 'master'
 
 * `/home/jenkins/analytics-tasks`: clone the client's fork and branch, e.g.:
 
-  ```yaml
-  analytics_pipeline_repo: 'https://github.com/xxx/edx-analytics-pipeline.git'
-  analytics_pipeline_version: 'master'
-  ```
+        analytics_pipeline_repo: 'https://github.com/xxx/edx-analytics-pipeline.git'
+        analytics_pipeline_version: 'master'
+
 
 ## jenkins_env
 
@@ -278,13 +275,13 @@ remain as code drift that have to be carried through across version upgrades.
 
 Here are the changes required to use regions other than `us-east-1` for Open edX Analytics:
 
-* In [`jenkins_env`], set `AWS_REGION` to your desired region.
-* In [`emr-vars.yml`], set `region` to your desired region.
-* In [`emr-vars.yml`], specify the `fs.s3n.endpoint: "s3.amazonaws.com"`. See the [configuration: core-site] block for details.
-* Patch the `TASK_BRANCH` used in [`jenkins_env`] and [cloned to jenkins home] to use your desired region: [TASK_BRANCH patch]
+* In [jenkins_env], set `AWS_REGION` to your desired region.
+* In [emr-vars.yml], set `region` to your desired region.
+* In [emr-vars.yml], specify the `fs.s3n.endpoint: "s3.amazonaws.com"`. See the [configuration: core-site] block for details.
+* Patch the `TASK_BRANCH` used in [jenkins_env] and [cloned to jenkins home] to use your desired region: [TASK_BRANCH patch]
 
   Allows us to override the default S3 endpoint to use a custom region.
-1. Patch the `CONFIG_BRANCH` used in [`jenkins_env`] and [cloned to jenkins home]: [CONFIG_BRANCH patch]
+1. Patch the `CONFIG_BRANCH` used in [jenkins_env] and [cloned to jenkins home]: [CONFIG_BRANCH patch]
 
   Allows us to use the more consistent `ONDEMAND` pricing for the EMR task instances, instead of edX's default `SPOT`
   pricing.
@@ -298,7 +295,7 @@ In `ca-central-1` and other newer AWS regions, only the new [SigV4 mechanism][AW
 
 This change is required to support SigV4:
 
-* In [`emr-vars.yml`], use `release_label: 'emr-4.9.6'`
+* In [emr-vars.yml], use `release_label: 'emr-4.9.6'`
 
   Using [EMR version 4.9.6] causes EMR to use AWS Signature Version 4 exclusively to authenticate requests to Amazon S3.
 
@@ -316,17 +313,14 @@ Troubleshooting
 * EMR provisioning: ansible unable to access new EMR instance.  See [SSH Access to EMR](#emr-security-groups).
   Ensure the `ElasticMapReduduce-master` security group has inbound SSH access from the analytics security group.
 
-  Another way to provide Jenkins with access is to to set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables in
+    Another way to provide Jenkins with access is to to set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables in
   `jenkins_env`, however it's very important to ensure that your Jenkins logs are not publicly visible, because these
   variables will be echoed to the Console output.
 
-  To use AWS keys, create a new analytics IAM user and use the ID and KEY for these variables. Note that this user
+    To use AWS keys, create a new analytics IAM user and use the ID and KEY for these variables. Note that this user
   should have `provision_emr_clusters` policy attached, otherwise trying to provision the cluster will fail with:
-  > ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
+    > ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
 
-  ```bash
-  ClientError: An error occurred (AccessDeniedException) when calling the ListClusters operation: User: arn:aws:iam::123456789012:user/analytics_user is not authorized to perform: elasticmapreduce:ListClusters
-  ```
 * `java.lang.UnsupportedClassVersionError: org/edx/hadoop/input/ManifestTextInputFormat : Unsupported major.minor version 51.0` or `52.0`.  This error occurs if the `edx-analytics-hadoop-util.jar` you're using for your
   `manifest.lib_jar` was compiled using a different version of java than what's running on the EMR cluster.
   The easiest way to rebuild the `edx-analytics-hadoop-util.jar` using the correct java version, and the required hadoop
@@ -340,41 +334,42 @@ Troubleshooting
 
         Note the EMR Cluster ID for the `aws emr` step below.
     1. Create a virtualenv, and install awscli:
-        ```bash
-        pip install awscli
-        ```
+
+            pip install awscli
+
     1. Create an IAM user and attach the `provision_emr_clusters` policy you created above.
     1. Using the AWS Access key ID and secret, authenticate your awscli:
-        ```bash
-        aws configure
-        ```
+
+            aws configure
+
   1. Shell into the EMR cluster using the `analytics.pem` file:
-     ```bash
-     aws emr ssh --cluster-id j-xxxxxxxxxxxx --key-pair-file=analytics.pem
-     ```
+
+        aws emr ssh --cluster-id j-xxxxxxxxxxxx --key-pair-file=analytics.pem
+
   1. Clone the edx-analytics-hadoop-util repo, and build the jar file:
-    ```bash
-    git clone https://github.com/edx/edx-analytics-hadoop-util
-    cd edx-analytics-hadoop-util
-    javac -cp "/usr/lib/hadoop/client/*" org/edx/hadoop/input/ManifestTextInputFormat.java
-    jar cf edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class
-    ```
+
+        git clone https://github.com/edx/edx-analytics-hadoop-util
+        cd edx-analytics-hadoop-util
+        javac -cp "/usr/lib/hadoop/client/*" org/edx/hadoop/input/ManifestTextInputFormat.java
+        jar cf edx-analytics-hadoop-util.jar org/edx/hadoop/input/ManifestTextInputFormat.class
+
 
 * EMR provisioning fails on the `hive_install` step with the following in stderr log:
-   ```bash
-  Exception in thread "main" com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.model.AmazonS3Exception: Moved Permanently (Service: Amazon S3; Status Code: 301; Error Code: 301 Moved Permanently; Request ID: A80C873649993B68), S3 Extended Request ID: z0mA1W5N329bG+Sznq/j7G2g5gsRgKWlzqdoRmYVoCIyELiv0CNk+hmbcm2fkd7G30c7Gzs7xXk=
-  ```
+
+  > Exception in thread "main" com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.model.AmazonS3Exception: Moved Permanently (Service: Amazon S3; Status Code: 301; Error Code: 301 Moved Permanently; Request ID: A80C873649993B68), S3 Extended Request ID: z0mA1W5N329bG+Sznq/j7G2g5gsRgKWlzqdoRmYVoCIyELiv0CNk+hmbcm2fkd7G30c7Gzs7xXk=
+
   May occur if you're running on a region other than `us-east-1`.  See [emr-vars.yml](resources/emr-vars.yml)
   configuration for `core-site` to set the `fs.s3n.endpoint`.
 
 * EMR provisioning fails during provisioning with:
-  ```bash
-  The subnet configuration was invalid: No route to any external sources detected in Route Table for Subnet: subnet-xxxxx for VPC: vpc-xxxxx
-  ```
+
+  > The subnet configuration was invalid: No route to any external sources detected in Route Table for Subnet: subnet-xxxxx for VPC: vpc-xxxxx
+
   This could mean you have not created an Internet Gateway for your VPC. See [VPC DNS Hostname](AWS_setup.md#vpc-dns-hostname)
 
-[`jenkins_env`]: resources/jenkins_env
-[`emr-vars.yml`]: resources/emr-vars.yml
+
+[jenkins_env]: resources/jenkins_env
+[emr-vars.yml]: resources/emr-vars.yml
 [cloned to jenkins home]: #analytics-repos
 [configuration: core-site]: resources/emr-vars.yml#L39-L44
 [AWS deprecated SigV2]: https://aws.amazon.com/blogs/aws/amazon-s3-update-sigv2-deprecation-period-extended-modified/

@@ -79,16 +79,12 @@ manually. The details may be out of date now, but are provided for reference.
 * Change directories to where you've stored your terraform `*.tf` files from [Setup](#setup-terraform).
 * From the terminal, run:
 
-   	```
-   	# Downloads the terraform provider and source templates
-   	terraform init
-
-   	# Preview the changes that will be made (check these carefully)
-   	terraform plan
-
-   	# Apply those changes
-	terraform apply
-    ```
+        # Downloads the terraform provider and source templates
+        terraform init
+        # Preview the changes that will be made (check these carefully)
+        terraform plan
+        # Apply those changes
+        terraform apply
 
 ## Upgrading existing resources
 
@@ -106,10 +102,9 @@ Once you're satisfied that the new instance is working, replace the old instance
 * Update `variables.tf` and decrement the `analytics_number_of_instances` count (back to 1).
 * Replace the old analytics instance with the new one in terraform state:
 
-    ```
-    terraform state rm 'module.analytics.aws_instance.analytics[0]'
-    terraform state mv 'module.analytics.aws_instance.analytics[1]' 'module.analytics.aws_instance.analytics[0]'
-    ```
+        terraform state rm 'module.analytics.aws_instance.analytics[0]'
+        terraform state mv 'module.analytics.aws_instance.analytics[1]' 'module.analytics.aws_instance.analytics[0]'
+
 * Update `variables.tf` to increase the `analytics_instance_iteration` counter (this is just for record purposes, doesn't affect functionality).
 * Run `terraform apply` again to move the new instance into place.
 * Manually stop/terminate the old EC2 instance once everything is verified OK.
@@ -205,4 +200,3 @@ See [Jenkins Setup](jenkins.md).
 [ElasticSearch]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#elasticsearch
 [IAM]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/analytics/AWS_setup.md#iam
 [AWS profile]: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html
-[Director Setup]: https://github.com/open-craft/openedx-deployment/blob/v1.0/docs/shared/director.md

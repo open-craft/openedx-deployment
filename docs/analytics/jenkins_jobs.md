@@ -73,6 +73,7 @@ To create job, authenticate to Jenkins, than go to main page.
     to `0 0 * * *`, or even `H H * * *` (`H` is a hash, so it might put some tasks closely together).
 
     Refer to Jenkins help should the need for a more sophisticated schedule arise.
+
 * `Build Environment`
     * `Abort the build if it's stuck`: enable
         * `Time-out strategy`: `Absolute`
@@ -85,15 +86,16 @@ To create job, authenticate to Jenkins, than go to main page.
 
       Select the 'hadoop' ssh access key created by ansible.
 
-      If the ssh credentials were not configured via ansible you can manually create a key here by clicking       the `Add Key` button.
+      If the ssh credentials were not configured via ansible you can manually create a key here by clicking the `Add Key` button.
 
-        * Kind: SSH username with private key
-        * Scope: Global
-        * Username: `hadoop`
-        * Private key: paste the analytics private key file contents directly, or copy the file to the analytics
-          instance and point to the path.
-        * Passphrase: Leave empty for AWS-issued private key files.
-        * Description: ssh credential file
+      * Kind: SSH username with private key
+      * Scope: Global
+      * Username: `hadoop`
+      * Private key: paste the analytics private key file contents directly, or copy the file to the analytics
+        instance and point to the path.
+      * Passphrase: Leave empty for AWS-issued private key files.
+      * Description: ssh credential file
+
 * `Build`
     * `Add Step` -> `Execute Shell`.
         * Fill in `Command` field with shell script to run. See [Commands](#commands) for details.
