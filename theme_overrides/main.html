@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<style>
+    .md-header__button.md-logo img { width: auto !important; }
+</style>
+{% endblock %}
+
+{% block hero %}
+
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+        <ul class="md-tabs__list">
+            <li class="md-tabs__item">
+                <a href="https://handbook.opencraft.com/" class="md-tabs__link">Handbook</a>
+            </li>
+            <li class="md-tabs__item">
+                <a href="https://doc.opencraft.com/" class="md-tabs__link md-tabs__link--active">Technical Docs</a>
+            </li>
+            <li class="md-tabs__item">
+                <a href="https://private.doc.opencraft.com/" class="md-tabs__link">Private Docs</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{% endblock %}

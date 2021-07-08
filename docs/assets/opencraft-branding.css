@@ -1,0 +1,13 @@
+:root {
+    /* Use OpenCraft colors for the docs theme - https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#custom-colors */
+    --md-primary-fg-color:        #1E4C59;
+    --md-primary-fg-color--light: #FFFFFF;
+    --md-primary-fg-color--dark:  #1E4C59;
+}
+
+:root > * { /* some colors need to go into this "light theme" section, see https://github.com/squidfunk/mkdocs-material/blob/master/src/assets/stylesheets/main/_colors.scss */
+    /* link color */
+    --md-typeset-a-color: #88af8e;
+    /* link hover color */
+    --md-accent-fg-color: #6D9CAE;
+}
