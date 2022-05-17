@@ -1,5 +1,16 @@
 # OpenStack Production Deployment (Proposal)
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**This document is out of date and may no longer be accurate or relevant.**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 edX does not officially provide any supported method for deploying a production-grade instance of Open edX. However, the following *proposed* method for setting up a production-grade instance on OpenStack is available to the community, and recommended by OpenCraft. For context, this method of deployment is used in production for over 100 production instances of Open edX on [OpenCraft's hosting platform](http://opencraft.com/hosting/).
 
 ## Features of this Deployment Method

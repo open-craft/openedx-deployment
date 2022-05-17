@@ -1,6 +1,17 @@
 Jenkins Setup
 =============
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/analytics/jenkins/](https://doc.opencraft.com/analytics/jenkins/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
 There are two ways to set up the Jenkins scheduler.  The patched `edx-analytics-configuration` playbook is being phased

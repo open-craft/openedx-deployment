@@ -1,6 +1,17 @@
 Insights/Analytics API Setup
 ============================
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/analytics/insights/](https://doc.opencraft.com/analytics/insights/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 See [AWS Setup](AWS_setup.md) to set up AWS resources and prepare secure configuration.
 
 See [Director Setup] for details on how to set up the ansible deployment "director" instance.

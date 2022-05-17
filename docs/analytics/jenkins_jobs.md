@@ -1,6 +1,17 @@
 Setting up Jenkins
 ==================
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/analytics/jenkins_jobs/](https://doc.opencraft.com/analytics/jenkins_jobs/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 See [Jenkins Setup](jenkins.md) to set up a Jenkins instance.
 
 EdX analytics pipeline comes equipped with a lot of tasks to perform various analytics calculations, but it

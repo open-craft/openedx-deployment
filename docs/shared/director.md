@@ -1,6 +1,17 @@
 Director Setup
 ==============
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/shared/director/](https://doc.opencraft.com/shared/director/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 The `director` instance is used to run ansible playbooks in the
 [`edx/configuration`](https://github.com/edx/configuration) repo.
 

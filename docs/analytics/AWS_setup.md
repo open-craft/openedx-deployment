@@ -1,6 +1,17 @@
 edX AWS Analytics Deployment
 ============================
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/analytics/AWS_setup/](https://doc.opencraft.com/analytics/AWS_setup/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 This document describes how to deploy the edX Analytics stack to the [Amazon Web Services].
 We will be using [terraform] and [Ansible] to automate deployment where ansible playbooks are available, but some manual
 setup is still required.

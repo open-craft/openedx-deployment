@@ -1,5 +1,16 @@
 # Open edX AWS Production Deployment and Upgrades
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/aws-openedx/aws-deployment/](https://doc.opencraft.com/aws-openedx/aws-deployment/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 Deploying to an AWS instance isn't totally automated. You'll need to log in to the AWS panel, prepare servers, and then SSH to the instance.
 The longest part of the deployment process is waiting for an `ansible` playbook which does all the provisioning.
 

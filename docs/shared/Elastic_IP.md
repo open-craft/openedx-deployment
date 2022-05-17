@@ -1,6 +1,17 @@
 Elastic IP
 ==========
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/shared/Elastic_IP/](https://doc.opencraft.com/shared/Elastic_IP/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 An Elastic IP makes it possible to perform updates or replace servers without downtime.  When a new server is ready, you
 can simply switch the Elastic IP to point to the new server.
 

@@ -1,15 +1,9 @@
-Open edX Deployment
-===================
+Open edX Deployment (Old)
+=========================
 
-Documentation and resources for deploying Open edX services.
+**⚠️ This repository is no longer in use.**
 
-See [opencraft.com/doc/openedx-deployment/](http://opencraft.com/doc/openedx-deployment/) for the latest release.
+This contains the source for an old documentation site, openedx-deployment.doc.opencraft.com.
 
-To build the docs to HTML:
-
-```bash
-pip install mkdocs
-mkdocs build
-```
-
-Ref [mkdocs](http://www.mkdocs.org/)
+Please use https://gitlab.com/opencraft/documentation/tech instead, which has the latest versions and
+is published at https://doc.opencraft.com/

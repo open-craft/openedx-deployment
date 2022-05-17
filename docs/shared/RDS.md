@@ -1,6 +1,17 @@
 RDS
 ===
 
+--------------------------
+
+⚠️ Out of date
+=============
+
+**A newer version of this documentation is available at [https://doc.opencraft.com/shared/RDS/](https://doc.opencraft.com/shared/RDS/)**
+
+A copy is below for historical purposes only.
+
+--------------------------
+
 These instructions will create a single MySQL RDS instance, suitable for use with `edxapp` or `edxanalytics` instances.
 
 Create
