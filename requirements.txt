@@ -20,7 +20,7 @@ pyyaml==5.4
     # via mkdocs
 six==1.12.0
     # via livereload
-tornado==5.1.1
+tornado==6.3.2
     # via
     #   livereload
     #   mkdocs
